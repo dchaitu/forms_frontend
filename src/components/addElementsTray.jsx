@@ -1,8 +1,6 @@
-import {VscSymbolColor} from "react-icons/vsc";
 import IconHover from "@/constants/iconHover";
 import {CiCirclePlus} from "react-icons/ci";
 import {BiSolidFileImport} from "react-icons/bi";
-import {TbTextSize} from "react-icons/tb";
 import {MdOutlineImage, MdOutlineTextFields} from "react-icons/md";
 import {GoRows, GoVideo} from "react-icons/go";
 
@@ -17,7 +15,7 @@ const AddElementsTray = () => {
         <IconHover icon={<GoRows size={iconSize}/>} text="Add section"/>
     ]
     return (
-        <div className="flex flex-col bg-white rounded-lg py-2">
+        <div className="flex flex-col bg-white rounded-lg py-2 shadow-lg m-2">
             {iconComponents.map((iconComponent, index) => (
                 <div key={index} className="flex items-center my-3">
                     {iconComponent}
