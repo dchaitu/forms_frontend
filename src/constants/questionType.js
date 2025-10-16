@@ -22,16 +22,16 @@ export const QuestionType = [
 ]
 
 export const questionTypeWiseIcon = {
-    "Short Answer": <MdOutlineShortText/>,
-    "Paragraph": <GrTextAlignFull />,
-    "Multiple Choice": <MdRadioButtonChecked/>,
-    "Checkboxes": <FaRegCheckSquare/>,
-    "Dropdown": <IoIosArrowDropdown/>,
-    "File Upload": <AiOutlineCloudUpload/>,
-    "Linear Scale": <MdOutlineLinearScale/>,
-    "Rating": <FaRegStar/>,
-    "Multiple Choice grid": <CgMenuGridO/>,
-    "Checkbox grid": <TfiLayoutGrid3Alt/>,
-    "Date": <IoMdCalendar/>,
-    "Time": <IoMdTime/>
+    "Short Answer": <MdOutlineShortText className="text-gray-500"/>,
+    "Paragraph": <GrTextAlignFull className="text-gray-500"/>,
+    "Multiple Choice": <MdRadioButtonChecked className="text-gray-500"/>,
+    "Checkboxes": <FaRegCheckSquare className="text-gray-500"/>,
+    "Dropdown": <IoIosArrowDropdown className="text-gray-500"/>,
+    "File Upload": <AiOutlineCloudUpload className="text-gray-500"/>,
+    "Linear Scale": <MdOutlineLinearScale className="text-gray-500"/>,
+    "Rating": <FaRegStar className="text-gray-500"/>,
+    "Multiple Choice grid": <CgMenuGridO className="text-gray-500"/>,
+    "Checkbox grid": <TfiLayoutGrid3Alt className="text-gray-500"/>,
+    "Date": <IoMdCalendar className="text-gray-500"/>,
+    "Time": <IoMdTime className="text-gray-500"/>
 }

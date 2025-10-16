@@ -3,7 +3,7 @@ import {Tooltip, TooltipContent, TooltipTrigger} from "@/components/ui/tooltip";
 const IconHover = (props) => {
     const {icon, text} = props
     return (
-        <div className="mx-3.5">
+        <div className="mx-3.5 cursor-pointer">
             <Tooltip>
                 <TooltipTrigger asChild>
                     <div className="self-start">

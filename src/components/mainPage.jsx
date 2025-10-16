@@ -10,26 +10,23 @@ import FormTitleAndDescription from "@/components/formTitleAndDescription";
 const MainPage = () => {
     const [selectedComponent, setSelectedComponent] = useState(null);
     const [trayStyle, setTrayStyle] = useState({});
+    const [questions, setQuestions] = useState([{id: 'initial_question'}]);
 
-    const formHeaderRef = useRef(null);
-    const formQuestionRef = useRef(null);
-    const formTitleAndDescriptionRef = useRef(null);
     const formColumnRef = useRef(null);
+    const componentRefs = useRef(new Map());
+
+    const addQuestion = () => {
+        const newId = `question_${Date.now()}`;
+        setQuestions(prev => [...prev, {id: newId}]);
+        setSelectedComponent(newId); // Select the new question
+    };
 
     useEffect(() => {
-        let selectedRef;
-        if (selectedComponent === 'header') {
-            selectedRef = formHeaderRef;
-        } else if (selectedComponent === 'question') {
-            selectedRef = formQuestionRef;
-        } else if (selectedComponent === 'titleAndDescription') {
-            selectedRef = formTitleAndDescriptionRef;
-        }
+        const selectedRef = componentRefs.current.get(selectedComponent);
 
-        if (selectedRef && selectedRef.current && formColumnRef.current && formTitleAndDescriptionRef.current) {
-            const selectedRect = selectedRef.current.getBoundingClientRect();
+        if (selectedRef && formColumnRef.current) {
+            const selectedRect = selectedRef.getBoundingClientRect();
             const formColumnRect = formColumnRef.current.getBoundingClientRect();
-            const formTitleAndDescriptionRect = formTitleAndDescriptionRef.current.getBoundingClientRect();
 
             setTrayStyle({
                 position: 'absolute',
@@ -38,9 +35,6 @@ const MainPage = () => {
             });
         }
     }, [selectedComponent]);
-
-    const isEditQuestion = () => (selectedComponent === 'question');
-    const isEditTitleAndDescription = () => (selectedComponent === 'titleAndDescription');
 
     return (
         <div id="mainPage">
@@ -55,9 +49,9 @@ const MainPage = () => {
 
                     <div className="flex justify-end items-center">
                         <HeaderIcons/>
-                        <button className="bg-violet-800 hover:bg-violet-600 rounded-lg px-4 py-2 mx-2 text-white">Publish</button>
+                        <button className="bg-violet-800 hover:bg-violet-600 rounded-md font-semibold px-6 py-2 mx-2 text-xs text-white">Publish</button>
 
-                        <IconHover icon={<BsThreeDotsVertical size={20}/>} text="More"/>
+                        <IconHover icon={<BsThreeDotsVertical size={20} className="text-gray-500"/>} text="More"/>
                     </div>
                 </div>
 
@@ -66,23 +60,35 @@ const MainPage = () => {
                 <div className="flex flex-row justify-center">
                     <div className="relative">
                         <div className="flex flex-col" ref={formColumnRef}>
-                            <div ref={formHeaderRef} onClick={() => setSelectedComponent('header')}>
+                            <div
+                                ref={el => componentRefs.current.set('header', el)}
+                                onClick={() => setSelectedComponent('header')}
+                            >
                                 <FormHeader/>
                             </div>
-                            <div ref={formQuestionRef} onClick={() => setSelectedComponent('question')}>
-                                <FormQuestion editQuestion={isEditQuestion()}/>
-                            </div>
-                            <div ref={formTitleAndDescriptionRef} onClick={() => setSelectedComponent('titleAndDescription')}>
-                                <FormTitleAndDescription editTitleAndDescription={isEditTitleAndDescription()}/>
+                            {questions.map(q => (
+                                <div
+                                    className="my-2"
+                                    key={q.id}
+                                    ref={el => componentRefs.current.set(q.id, el)}
+                                    onClick={() => setSelectedComponent(q.id)}
+                                >
+                                    <FormQuestion editQuestion={selectedComponent === q.id}/>
+                                </div>
+                            ))}
+                            <div
+                                ref={el => componentRefs.current.set('titleAndDescription', el)}
+                                onClick={() => setSelectedComponent('titleAndDescription')}
+                            >
+                                <FormTitleAndDescription editTitleAndDescription={selectedComponent === 'titleAndDescription'}/>
                             </div>
                         </div>
-
+                        {selectedComponent &&
+                            <div style={trayStyle}>
+                                <AddElementsTray addQuestion={addQuestion}/>
+                            </div>
+                        }
                     </div>
-                    {selectedComponent &&
-                        <div style={trayStyle}>
-                            <AddElementsTray/>
-                        </div>
-                    }
                 </div>
             </div>
         </div>
