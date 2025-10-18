@@ -6,6 +6,16 @@ import {useState, useRef, useEffect} from "react";
 import AddElementsTray from "@/components/addElementsTray";
 import IconHover from "@/constants/iconHover";
 import FormTitleAndDescription from "@/components/formTitleAndDescription";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import {MdContentCopy, MdFormatAlignJustify} from "react-icons/md";
+import {IoExtensionPuzzleOutline, IoPrintSharp} from "react-icons/io5";
+import {FaRegKeyboard, FaRegTrashAlt} from "react-icons/fa";
+import {ImEmbed} from "react-icons/im";
 
 const MainPage = () => {
     const [selectedComponent, setSelectedComponent] = useState(null);
@@ -55,7 +65,43 @@ const MainPage = () => {
                         <HeaderIcons/>
                         <button className="bg-violet-800 hover:bg-violet-600 rounded-md font-semibold px-6 py-2 mx-2 text-xs text-white">Publish</button>
 
-                        <IconHover icon={<BsThreeDotsVertical size={20} className="text-gray-500"/>} text="More"/>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <div className="p-2 mx-2 rounded-full hover:bg-gray-200 cursor-pointer">
+                                    <IconHover icon={<BsThreeDotsVertical size={15} className="text-gray-500"/>}/>
+                                </div>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="bg-white">
+                                <DropdownMenuItem>
+                                    <MdContentCopy className="mr-2 h-4 w-4" />
+                                    <span>Make a copy</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    <FaRegTrashAlt className="mr-2 h-4 w-4" />
+                                    <span>Move to Trash</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    <MdFormatAlignJustify className="mr-2 h-4 w-4" />
+                                    <span>Pre-fill form</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    <ImEmbed className="mr-2 h-4 w-4" />
+                                    <span>Embed HTML</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    <IoPrintSharp className="mr-2 h-4 w-4" />
+                                    <span>Print</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    <IoExtensionPuzzleOutline className="mr-2 h-4 w-4" />
+                                    <span>Get add-ons</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    <FaRegKeyboard className="mr-2 h-4 w-4" />
+                                    <span>Keyboard Shortcuts</span>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
                 </div>
 
@@ -68,7 +114,7 @@ const MainPage = () => {
                                 ref={el => componentRefs.current.set('header', el)}
                                 onClick={() => setSelectedComponent('header')}
                             >
-                                <FormHeader showOptions={true}/>
+                                <FormHeader isSelected={selectedComponent==='header'}/>
                             </div>
                             {questions.map(q => (
                                 <div
@@ -89,7 +135,7 @@ const MainPage = () => {
                         </div>
                         {selectedComponent &&
                             <div style={trayStyle}>
-                                <AddElementsTray addQuestion={addQuestion}/>
+                                <AddElementsTray addQuestion={addQuestion} addTitleAndDescription={addTitleAndDescription}/>
                             </div>
                         }
                     </div>
