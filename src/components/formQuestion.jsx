@@ -1,22 +1,53 @@
-import {
-    DropdownMenu,
-    DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
-import {QuestionType, questionTypeWiseIcon} from "@/constants/questionType";
-import {FaChevronDown, FaRegTrashAlt} from "react-icons/fa";
+import {FaRegTrashAlt, FaRegStar} from "react-icons/fa";
 import IconHover from "@/constants/iconHover";
 import {MdContentCopy, MdOutlineImage} from "react-icons/md";
 import {useState} from "react";
 import {Switch} from "@/components/ui/switch";
 import {BsThreeDotsVertical} from "react-icons/bs";
+import QuestionTypeDropdown from "@/components/questionTypeDropdown";
+import {AiOutlineCloudUpload} from "react-icons/ai";
+import {
+    DropdownMenu,
+    DropdownMenuContent, DropdownMenuGroup, DropdownMenuCheckboxItem,
+    DropdownMenuItem,
+    DropdownMenuLabel, DropdownMenuSeparator,
+    DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import {ChevronDownIcon} from "lucide-react";
 
 const FormQuestion = (props) => {
     const {editQuestion} = props;
     const [selectedQuestionType, setSelectedQuestionType] = useState("Multiple Choice");
+    const [selectedStartValue, setSelectedStartValue] = useState(0);
+    const [selectedEndValue, setSelectedEndValue] = useState(5);
     const question = "Untitled Question"
+    const description = "Description (optional)"
     const options = ["Option 1", "Option 2", "Option 3"]
+    const gridOptions = {
+        rows: ["Row 1", "Row 2"],
+        columns: ["Column 1", "Column 2", "Column 3"]
+    };
+    const [showDescription, setShowDescription] = useState(false);
+    const [showGoToSection, setShowGoToSection] = useState(false);
+    const [showShuffleOptionOrder, setShowShuffleOptionOrder] = useState(false);
+
+    const menuOptions = [
+        {
+            label: "Description",
+            state: showDescription,
+            setState: setShowDescription
+        },
+        {
+            label: "Go to section based on answer",
+            state: showGoToSection,
+            setState: setShowGoToSection
+        },
+        {
+            label: "Shuffle option order",
+            state: showShuffleOptionOrder,
+            setState: setShowShuffleOptionOrder
+        }
+    ];
 
     const renderOptions = () => {
         if (selectedQuestionType === "Multiple Choice") {
@@ -67,6 +98,167 @@ const FormQuestion = (props) => {
                     </label>
                 </div>
             ));
+        } else if (selectedQuestionType === "Short Answer") {
+            return (
+                <div className="my-3 flex items-start gap-2">
+                    <input
+                        type="text"
+                        placeholder="Short answer text"
+                        className="w-1/2 p-2 border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none"
+                        disabled
+                    />
+                </div>
+            );
+        } else if (selectedQuestionType === "Paragraph") {
+            return (
+                <div className="my-5">
+                    <textarea
+                        placeholder="Long answer text"
+                        className="w-full p-2 border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none"
+                        disabled
+                    />
+                </div>
+            );
+        } else if (selectedQuestionType === "File Upload") {
+            return (
+                <div className="my-5">
+                    <div className="flex items-center gap-2 p-3 border border-dashed rounded-md w-fit">
+                        <AiOutlineCloudUpload size={24} className="text-gray-500"/>
+                        <span className="text-gray-700">File upload</span>
+                    </div>
+                </div>
+            );
+        } else if (selectedQuestionType === "Linear Scale") {
+            const start = [0,1];
+            const end = [2,3,4,5,6,7,8,9,10]
+            return (
+                <div className="my-5 flex items-center gap-4">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <div className="flex flex-row">
+                                <button>{selectedStartValue} </button>
+                                <ChevronDownIcon className="ml-1 h-4 w-4" />
+                            </div>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="bg-white">
+                            <DropdownMenuSeparator/>
+                            <DropdownMenuGroup>
+                                {start.map((type) => (
+                                    <DropdownMenuItem
+                                        key={type}
+                                        onSelect={() => setSelectedStartValue(type)}
+                                        className="flex items-center gap-3 h-10"
+                                    >
+                                        <span>{type}</span>
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuGroup>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    to
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <div className="flex flex-row">
+                                <button>{selectedEndValue} </button>
+                                <ChevronDownIcon className="ml-1 h-4 w-4" />
+                            </div>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="bg-white">
+                            <DropdownMenuSeparator/>
+                            <DropdownMenuGroup>
+                                {end.map((type) => (
+                                    <DropdownMenuItem
+                                        key={type}
+                                        onSelect={() => setSelectedEndValue(type)}
+                                        className="flex items-center gap-3 h-10"
+                                    >
+                                        <span>{type}</span>
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuGroup>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    <div className="flex flex-col items-center">
+                        <input type="text" placeholder="Label (optional)" className="w-[100%] p-2 border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none" />
+                        <input type="text" placeholder="Label (optional)" className="w-[100%] p-2 border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none" />
+
+                    </div>
+                </div>
+            );
+        } else if (selectedQuestionType === "Rating") {
+            return (
+                <div className="my-5 flex items-center gap-2">
+                    {[1, 2, 3, 4, 5].map(value => (
+                        <FaRegStar key={value} size={24} className="text-yellow-500 cursor-pointer"/>
+                    ))}
+                </div>
+            );
+        } else if (selectedQuestionType === "Multiple Choice grid") {
+            return (
+                <div className="my-5">
+                    <table className="w-full">
+                        <thead>
+                        <tr>
+                            <th></th>
+                            {gridOptions.columns.map((col, colIndex) => (
+                                <th key={colIndex} className="p-2 text-sm font-medium text-gray-700">{col}</th>
+                            ))}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {gridOptions.rows.map((row, rowIndex) => (
+                            <tr key={rowIndex}>
+                                <td className="p-2 text-sm font-medium text-gray-700">{row}</td>
+                                {gridOptions.columns.map((col, colIndex) => (
+                                    <td key={colIndex} className="p-2 text-center">
+                                        <input type="radio" name={`grid-row-${rowIndex}`} className="h-4 w-4"/>
+                                    </td>
+                                ))}
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </div>
+            );
+        } else if (selectedQuestionType === "Checkbox grid") {
+            return (
+                <div className="my-5">
+                    <table className="w-full">
+                        <thead>
+                        <tr>
+                            <th></th>
+                            {gridOptions.columns.map((col, colIndex) => (
+                                <th key={colIndex} className="p-2 text-sm font-medium text-gray-700">{col}</th>
+                            ))}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {gridOptions.rows.map((row, rowIndex) => (
+                            <tr key={rowIndex}>
+                                <td className="p-2 text-sm font-medium text-gray-700">{row}</td>
+                                {gridOptions.columns.map((col, colIndex) => (
+                                    <td key={colIndex} className="p-2 text-center">
+                                        <input type="checkbox" className="h-4 w-4 rounded"/>
+                                    </td>
+                                ))}
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </div>
+            );
+        } else if (selectedQuestionType === "Date") {
+            return (
+                <div className="my-5">
+                    <input type="date" className="p-2 border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none"/>
+                </div>
+            );
+        } else if (selectedQuestionType === "Time") {
+            return (
+                <div className="my-5">
+                    <input type="time" className="p-2 border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none"/>
+                </div>
+            );
         }
         return null;
     };
@@ -82,36 +274,16 @@ const FormQuestion = (props) => {
                             className="w-full text-lg font-medium mb-2 p-1 border-b border-transparent hover:border-gray-300 focus:outline-none focus:border-blue-500"
                         />
                     </div>
+                    {showDescription && <div className="flex-1">
+                        <input
+                            value={description}
+                            className="w-full text-sm mb-2 p-1 border-b border-transparent hover:border-gray-300 focus:outline-none focus:border-blue-500"
+                        />
+                    </div>}
                     {editQuestion && <div className="flex items-center gap-2">
                         <IconHover icon={<MdOutlineImage size={20} className="text-gray-500"/>} text="Add Inline Image"/>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <button
-                                    className="flex items-center gap-2 px-3 py-1 border rounded-md hover:bg-gray-50">
-                                    <span>{questionTypeWiseIcon[selectedQuestionType]}</span>
-                                    <span>{selectedQuestionType}</span>
-                                    <FaChevronDown className="h-3 w-3 text-gray-500"/>
-                                </button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-[250px] bg-white">
-                                <DropdownMenuSeparator/>
-
-                                <DropdownMenuGroup>
-                                    {QuestionType.map((type) => (
-                                        <DropdownMenuItem
-                                            key={type}
-                                            onSelect={() => setSelectedQuestionType(type)}
-                                            className="flex items-center gap-3 h-10"
-                                        >
-                                            <span>
-                                                {questionTypeWiseIcon[type]}
-                                            </span>
-                                            <span>{type}</span>
-                                        </DropdownMenuItem>
-                                    ))}
-                                </DropdownMenuGroup>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                        <QuestionTypeDropdown selectedQuestionType={selectedQuestionType}
+                                              setSelectedQuestionType={setSelectedQuestionType}/>
                     </div>}
                 </div>
             </div>
@@ -137,7 +309,29 @@ const FormQuestion = (props) => {
 
                         </div>
                         <div>
-                            <IconHover icon={<BsThreeDotsVertical className="text-gray-500" size={20}/>} text="More Options"/>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <button className="ml-2 p-2 rounded-full hover:bg-gray-100 cursor-pointer">
+                                        <BsThreeDotsVertical className="text-gray-500" size={20}/>
+                                    </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="bg-white">
+                                    <DropdownMenuLabel>Show</DropdownMenuLabel>
+                                    <DropdownMenuSeparator/>
+                                    <DropdownMenuGroup>
+                                        {menuOptions.map((item) => (
+                                            <DropdownMenuCheckboxItem
+                                                key={item.label}
+                                                checked={item.state}
+                                                onCheckedChange={item.setState}
+                                                className="flex items-center gap-3 h-10"
+                                            >
+                                                <span>{item.label}</span>
+                                            </DropdownMenuCheckboxItem>
+                                        ))}
+                                    </DropdownMenuGroup>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </div>
                     </div>
                 </div>
@@ -149,4 +343,3 @@ const FormQuestion = (props) => {
 }
 
 export default FormQuestion
-

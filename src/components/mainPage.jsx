@@ -21,6 +21,10 @@ const MainPage = () => {
         setSelectedComponent(newId); // Select the new question
     };
 
+    const addTitleAndDescription = () => {
+        setSelectedComponent('titleAndDescription');
+    };
+
     useEffect(() => {
         const selectedRef = componentRefs.current.get(selectedComponent);
 
@@ -64,7 +68,7 @@ const MainPage = () => {
                                 ref={el => componentRefs.current.set('header', el)}
                                 onClick={() => setSelectedComponent('header')}
                             >
-                                <FormHeader/>
+                                <FormHeader showOptions={true}/>
                             </div>
                             {questions.map(q => (
                                 <div

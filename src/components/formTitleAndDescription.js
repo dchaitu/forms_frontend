@@ -2,11 +2,26 @@ import IconHover from "@/constants/iconHover";
 import {MdContentCopy} from "react-icons/md";
 import {FaRegTrashAlt} from "react-icons/fa";
 import {BsThreeDotsVertical} from "react-icons/bs";
+import {useState} from "react";
+import {
+    DropdownMenu, DropdownMenuCheckboxItem,
+    DropdownMenuContent, DropdownMenuGroup, DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 
 const FormTitleAndDescription = (props) => {
     const {editTitleAndDescription} = props;
     const title = "Title";
-    const description = "Description"
+    const description = "Description (optional)"
+    const [showDescription, setShowDescription] = useState(false);
+    const menuOptions = [
+        {
+            label: "Description",
+            state: showDescription,
+            setState: setShowDescription
+        }
+    ];
     return (
         <div
             className="flex p-5 bg-white shadow rounded-lg my-2 focus:outline-none border-l-4 focus:border-l-[#4285f4] border-r-0 border-b-0"
@@ -19,12 +34,14 @@ const FormTitleAndDescription = (props) => {
                             className="w-full text-lg font-medium mb-2 p-1 border-b border-transparent hover:border-gray-300 focus:outline-none focus:border-blue-500"
                         />
                     </div>
-                    <div className="w-full">
-                        <input
-                            value={description}
-                            className="w-full text-sm mb-2 p-1 border-b border-transparent hover:border-gray-300 focus:outline-none focus:border-blue-500"
-                        />
-                    </div>
+                    {showDescription &&
+                        <div className="w-full text-gray-500">
+                            <input
+                                value={description}
+                                className="w-full text-sm mb-2 p-1 border-b border-transparent hover:border-gray-300 focus:outline-none focus:border-blue-500"
+                            />
+                        </div>}
+
                 </div>
                 {editTitleAndDescription && (
                     <div className="flex  flex-col  items-end">
@@ -36,7 +53,30 @@ const FormTitleAndDescription = (props) => {
                             <div>
                                 <IconHover icon={<FaRegTrashAlt className="text-gray-500" size={20}/>} text="Delete Question"/>
                             </div>
-                            <IconHover icon={<BsThreeDotsVertical size={20} className="text-gray-500"/>} text="More Options"/>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <button className="ml-2 px-2 rounded-full hover:bg-gray-100 cursor-pointer">
+                                        <BsThreeDotsVertical className="text-gray-500" size={20}/>
+                                    </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="bg-white">
+                                    <DropdownMenuSeparator/>
+                                    <DropdownMenuLabel>Show</DropdownMenuLabel>
+                                    <DropdownMenuSeparator/>
+                                    <DropdownMenuGroup>
+                                        {menuOptions.map((item) => (
+                                            <DropdownMenuCheckboxItem
+                                                key={item.label}
+                                                checked={item.state}
+                                                onCheckedChange={item.setState}
+                                                className="flex items-center gap-3 h-10"
+                                            >
+                                                <span>{item.label}</span>
+                                            </DropdownMenuCheckboxItem>
+                                        ))}
+                                    </DropdownMenuGroup>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </div>
                     </div>
                 )
