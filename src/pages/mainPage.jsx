@@ -1,22 +1,11 @@
 import HeaderIcons from "../constants/headerIcons";
-import {BsThreeDotsVertical} from "react-icons/bs";
 import FormHeader from "@/components/formHeader";
 import FormQuestion from "@/components/formQuestion";
 import {useState, useRef, useEffect} from "react";
 import AddElementsTray from "@/components/addElementsTray";
-import IconHover from "@/constants/iconHover";
 import FormTitleAndDescription from "@/components/formTitleAndDescription";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
-import {MdContentCopy, MdFormatAlignJustify} from "react-icons/md";
-import {IoExtensionPuzzleOutline, IoPrintSharp} from "react-icons/io5";
-import {FaRegKeyboard, FaRegTrashAlt} from "react-icons/fa";
-import {ImEmbed} from "react-icons/im";
 import FormActionsDropdown from "@/constants/formActionsDropdown";
+import Header from "@/constants/header";
 
 const MainPage = () => {
     const [selectedComponent, setSelectedComponent] = useState(null);
@@ -53,24 +42,7 @@ const MainPage = () => {
 
     return (
         <div id="mainPage">
-            <div id="header" className="bg-white">
-                <div className="flex flex-1 justify-between items-center">
-                    <div className="flex flex-row w-10 p-2 m-2">
-                        <img src="/images/forms_logo.png" alt="forms_logo"/>
-                        <div className="self-center mx-2">
-                            <h1>Forms</h1>
-                        </div>
-                    </div>
-
-                    <div className="flex justify-end items-center">
-                        <HeaderIcons/>
-                        <button className="bg-violet-800 hover:bg-violet-600 rounded-md font-semibold px-6 py-2 mx-2 text-xs text-white">Publish</button>
-
-                        <FormActionsDropdown />
-                    </div>
-                </div>
-
-            </div>
+            <Header/>
             <div id="form" className="bg-violet-100 h-screen px-10 ">
                 <div className="flex flex-row justify-center">
                     <div className="relative">
