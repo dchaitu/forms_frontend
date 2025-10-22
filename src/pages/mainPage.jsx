@@ -1,11 +1,10 @@
-import HeaderIcons from "../constants/headerIcons";
 import FormHeader from "@/components/formHeader";
 import FormQuestion from "@/components/formQuestion";
 import {useState, useRef, useEffect} from "react";
 import AddElementsTray from "@/components/addElementsTray";
 import FormTitleAndDescription from "@/components/formTitleAndDescription";
-import FormActionsDropdown from "@/constants/formActionsDropdown";
 import Header from "@/constants/header";
+import {API_BASE_URL} from "@/constants/constants";
 
 const MainPage = () => {
     const [selectedComponent, setSelectedComponent] = useState(null);
@@ -14,6 +13,7 @@ const MainPage = () => {
 
     const formColumnRef = useRef(null);
     const componentRefs = useRef(new Map());
+    const [formList, setFormList] = useState([]);
 
     const addQuestion = () => {
         const newId = `question_${Date.now()}`;
@@ -24,6 +24,16 @@ const MainPage = () => {
     const addTitleAndDescription = () => {
         setSelectedComponent('titleAndDescription');
     };
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const resp = await fetch(`${API_BASE_URL}/form/all/`);
+            const data = await resp.json();
+            console.log(data);
+            setFormList(data);
+        }
+        fetchData();
+    }, [])
 
     useEffect(() => {
         const selectedRef = componentRefs.current.get(selectedComponent);
@@ -51,7 +61,21 @@ const MainPage = () => {
                                 ref={el => componentRefs.current.set('header', el)}
                                 onClick={() => setSelectedComponent('header')}
                             >
-                                <FormHeader isSelected={selectedComponent==='header'}/>
+                                {
+                                    formList.length > 0 ? (
+                                        formList.map((form) => (
+                                            <FormHeader
+                                                key={form.id}
+                                                formId={form.id}
+                                                title={form.title}
+                                                description={form.description}
+                                                isSelected={selectedComponent==='header'}
+                                            />
+                                        ))
+                                    ) : (
+                                        <FormHeader isSelected={selectedComponent==='header'}/>
+                                    )
+                                }
                             </div>
                             {questions.map(q => (
                                 <div

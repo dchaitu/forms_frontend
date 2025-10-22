@@ -64,6 +64,7 @@ const FormQuestion = (props) => {
                     description: description,
                     question_type: selectedQuestionType.value ? selectedQuestionType.value : selectedQuestionType,
                     is_required: questionIsRequired,
+                    // options: options, // Add options to the payload
                 }),
             });
         const data = await resp.json();
@@ -87,6 +88,25 @@ const FormQuestion = (props) => {
             setState: setShowShuffleOptionOrder
         }
     ];
+
+    const saveOption = async () => {
+        for (let option of options) {
+            const resp = await fetch(`${API_BASE_URL}/question/create/`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        question_id: sectionId,
+                        text: option,
+
+                    }),
+                });
+            const data = await resp.json();
+            console.log(data);
+        }
+    }
 
     const renderOptions = () => {
         if (selectedQuestionType === QuestionType.MULTIPLE_CHOICE) {

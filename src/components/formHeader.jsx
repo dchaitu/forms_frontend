@@ -2,15 +2,20 @@ import IconHover from "@/constants/iconHover";
 import {BiCollapseVertical} from "react-icons/bi";
 import {BsThreeDotsVertical} from "react-icons/bs";
 import {useEffect, useRef, useState} from "react";
-import useOnClickOutside from "@/lib/useOnClickOutside";
+// import useOnClickOutside from "@/lib/useOnClickOutside";
 import {API_BASE_URL} from "@/constants/constants";
 
 
 const FormHeader = (props) => {
-    const {isSelected, formId: initialFormId} = props;
-    const [headerName, setHeaderName] = useState("Untitled Form");
-    const [headerDescription, setHeaderDescription] = useState("Form Description");
+    const {isSelected, formId: initialFormId, title, description} = props;
+    const [headerName, setHeaderName] = useState(title || "Untitled Form");
+    const [headerDescription, setHeaderDescription] = useState(description || "Form Description");
     const [formId, setFormId] = useState(initialFormId);
+
+    useEffect(() => {
+        if (title) setHeaderName(title);
+        if (description) setHeaderDescription(description);
+    }, [title, description]);
 
     const ref = useRef();
 
@@ -43,12 +48,12 @@ const FormHeader = (props) => {
 
     }
 
-    useOnClickOutside(ref, () => {
-        if (isSelected) {
-            console.log('Saving form header data:', { headerName, headerDescription });
-            saveFormHeader();
-        }
-    });
+    // useOnClickOutside(ref, () => {
+    //     if (isSelected) {
+    //         console.log('Saving form header data:', { headerName, headerDescription });
+    //         saveFormHeader();
+    //     }
+    // });
 
     return (
 
@@ -60,6 +65,11 @@ const FormHeader = (props) => {
             </div>
             {isSelected &&(
                 <div className="flex items-start ml-auto">
+                    <button onClick={saveFormHeader}
+                            className="bg-blue-500 text-white px-4 py-1 rounded"
+                    >
+                        Save
+                    </button>
                     <IconHover icon={<BiCollapseVertical
                         size={20} className="text-gray-500"/>} text="Add Inline Image"/>
                     <IconHover icon={<BsThreeDotsVertical size={20} className="text-gray-500"/>} text="Add Inline Image"/>

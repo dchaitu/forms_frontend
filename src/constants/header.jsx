@@ -1,6 +1,7 @@
 import HeaderIcons from "@/constants/headerIcons";
 import FormActionsDropdown from "@/constants/formActionsDropdown";
 import { NavLink } from 'react-router-dom';
+import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 
 const Header = () => {
     // className({ isActive, isPending, isTransitioning })
@@ -31,13 +32,17 @@ const Header = () => {
                     <button className="bg-violet-800 hover:bg-violet-600 rounded-md font-semibold px-6 py-2 mx-2 text-xs text-white">Publish</button>
 
                     <FormActionsDropdown />
+                    <Avatar>
+                        <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                        <AvatarFallback>CN</AvatarFallback>
+                    </Avatar>
                 </div>
             </div>
             <div className="flex flex-grow justify-center">
                 <NavLink to="/" className={getNavLinkClass}>
                     Questions
                 </NavLink>
-                <NavLink to="/response" className={getNavLinkClass}>
+                <NavLink to="/responses" className={getNavLinkClass}>
                     Responses
                 </NavLink>
                 <NavLink to="/settings" className={getNavLinkClass}>
