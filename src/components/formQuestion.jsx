@@ -1,6 +1,6 @@
 import {FaRegTrashAlt, FaRegStar} from "react-icons/fa";
 import IconHover from "@/constants/iconHover";
-import {MdContentCopy, MdOutlineImage} from "react-icons/md";
+import {MdContentCopy, MdOutlineImage, MdClose} from "react-icons/md";
 import {useState} from "react";
 import {Switch} from "@/components/ui/switch";
 import {BsThreeDotsVertical} from "react-icons/bs";
@@ -14,15 +14,18 @@ import {
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import {ChevronDownIcon} from "lucide-react";
+import {API_BASE_URL} from "@/constants/constants";
+import {QuestionType} from "@/constants/questionType";
 
 const FormQuestion = (props) => {
     const {editQuestion} = props;
-    const [selectedQuestionType, setSelectedQuestionType] = useState("Multiple Choice");
+    const [selectedQuestionType, setSelectedQuestionType] = useState(QuestionType.MULTIPLE_CHOICE);
     const [selectedStartValue, setSelectedStartValue] = useState(0);
     const [selectedEndValue, setSelectedEndValue] = useState(5);
-    const question = "Untitled Question"
-    const description = "Description (optional)"
-    const options = ["Option 1", "Option 2", "Option 3"]
+    const [question, setQuestion] = useState("Untitled Question")
+    const [description, setDescription] = useState("Description (optional)")
+    const [options, setOptions] = useState(["Option 1", "Option 2", "Option 3"]);
+    const [questionIsRequired, setQuestionIsRequired] = useState(false);
     const gridOptions = {
         rows: ["Row 1", "Row 2"],
         columns: ["Column 1", "Column 2", "Column 3"]
@@ -30,6 +33,42 @@ const FormQuestion = (props) => {
     const [showDescription, setShowDescription] = useState(false);
     const [showGoToSection, setShowGoToSection] = useState(false);
     const [showShuffleOptionOrder, setShowShuffleOptionOrder] = useState(false);
+
+    const sectionId = 1;
+    const handleOptionChange = (index, newText) => {
+        const newOptions = [...options];
+        newOptions[index] = newText;
+        setOptions(newOptions);
+    };
+
+    const addOption = () => {
+        setOptions([...options, `Option ${options.length + 1}`]);
+    };
+
+    const removeOption = (index) => {
+        const newOptions = [...options];
+        newOptions.splice(index, 1);
+        setOptions(newOptions);
+    };
+
+    const saveQuestion = async () => {
+        const resp =   await fetch(`${API_BASE_URL}/question/create/`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    section_id: sectionId,
+                    title: question,
+                    description: description,
+                    question_type: selectedQuestionType.value ? selectedQuestionType.value : selectedQuestionType,
+                    is_required: questionIsRequired,
+                }),
+            });
+        const data = await resp.json();
+        console.log(data);
+    }
 
     const menuOptions = [
         {
@@ -50,7 +89,33 @@ const FormQuestion = (props) => {
     ];
 
     const renderOptions = () => {
-        if (selectedQuestionType === "Multiple Choice") {
+        if (selectedQuestionType === QuestionType.MULTIPLE_CHOICE) {
+            if (editQuestion) {
+                return (
+                    <div>
+                        {options.map((option, index) => (
+                            <div key={index} className="flex items-center my-2">
+                                <input type="radio" className="h-4 w-4 text-gray-400" disabled />
+                                <input
+                                    type="text"
+                                    value={option}
+                                    onChange={(e) => handleOptionChange(index, e.target.value)}
+                                    className="ml-3 p-1 border-b-2 border-transparent focus:border-blue-500 focus:outline-none"
+                                />
+                                <button onClick={() => removeOption(index)} className="ml-2 text-gray-500 hover:text-gray-700">
+                                    <MdClose />
+                                </button>
+                            </div>
+                        ))}
+                        <div className="flex items-center my-2">
+                            <input type="radio" className="h-4 w-4 text-gray-400" disabled />
+                            <button onClick={addOption} className="ml-3 text-blue-600 hover:text-blue-800">
+                                Add option
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
             return options.map((option, index) => (
                 <div key={index} className="flex items-center my-5">
                     <input
@@ -68,7 +133,33 @@ const FormQuestion = (props) => {
                     </label>
                 </div>
             ));
-        } else if (selectedQuestionType === "Checkboxes") {
+        } else if (selectedQuestionType === QuestionType.CHECKBOXES) {
+            if (editQuestion) {
+                return (
+                    <div>
+                        {options.map((option, index) => (
+                            <div key={index} className="flex items-center my-2">
+                                <input type="checkbox" className="h-4 w-4 text-gray-400 rounded" disabled />
+                                <input
+                                    type="text"
+                                    value={option}
+                                    onChange={(e) => handleOptionChange(index, e.target.value)}
+                                    className="ml-3 p-1 border-b-2 border-transparent focus:border-blue-500 focus:outline-none"
+                                />
+                                <button onClick={() => removeOption(index)} className="ml-2 text-gray-500 hover:text-gray-700">
+                                    <MdClose />
+                                </button>
+                            </div>
+                        ))}
+                        <div className="flex items-center my-2">
+                            <input type="checkbox" className="h-4 w-4 text-gray-400 rounded" disabled />
+                            <button onClick={addOption} className="ml-3 text-blue-600 hover:text-blue-800">
+                                Add option
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
             return options.map((option, index) => (
                 <div key={index} className="flex items-center my-5">
                     <input
@@ -86,7 +177,33 @@ const FormQuestion = (props) => {
                     </label>
                 </div>
             ));
-        } else if (selectedQuestionType === "Dropdown") {
+        } else if (selectedQuestionType === QuestionType.DROPDOWN) {
+            if (editQuestion) {
+                return (
+                    <div>
+                        {options.map((option, index) => (
+                            <div key={index} className="flex items-center my-2">
+                                <span className="mr-2">{index + 1}.</span>
+                                <input
+                                    type="text"
+                                    value={option}
+                                    onChange={(e) => handleOptionChange(index, e.target.value)}
+                                    className="p-1 border-b-2 border-transparent focus:border-blue-500 focus:outline-none"
+                                />
+                                <button onClick={() => removeOption(index)} className="ml-2 text-gray-500 hover:text-gray-700">
+                                    <MdClose />
+                                </button>
+                            </div>
+                        ))}
+                        <div className="flex items-center my-2">
+                            <span className="mr-2">{options.length + 1}.</span>
+                            <button onClick={addOption} className="text-blue-600 hover:text-blue-800">
+                                Add option
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
             return options.map((option, index) => (
                 <div key={index} className="flex items-center my-5">
                     <span className="mr-2">{index + 1}.</span>
@@ -98,7 +215,7 @@ const FormQuestion = (props) => {
                     </label>
                 </div>
             ));
-        } else if (selectedQuestionType === "Short Answer") {
+        } else if (selectedQuestionType === QuestionType.TEXT) {
             return (
                 <div className="my-3 flex items-start gap-2">
                     <input
@@ -109,7 +226,7 @@ const FormQuestion = (props) => {
                     />
                 </div>
             );
-        } else if (selectedQuestionType === "Paragraph") {
+        } else if (selectedQuestionType === QuestionType.PARAGRAPH) {
             return (
                 <div className="my-5">
                     <textarea
@@ -119,7 +236,7 @@ const FormQuestion = (props) => {
                     />
                 </div>
             );
-        } else if (selectedQuestionType === "File Upload") {
+        } else if (selectedQuestionType === QuestionType.FILE_UPLOAD) {
             return (
                 <div className="my-5">
                     <div className="flex items-center gap-2 p-3 border border-dashed rounded-md w-fit">
@@ -185,7 +302,7 @@ const FormQuestion = (props) => {
                     </div>
                 </div>
             );
-        } else if (selectedQuestionType === "Rating") {
+        } else if (selectedQuestionType === QuestionType.RATING) {
             return (
                 <div className="my-5 flex items-center gap-2">
                     {[1, 2, 3, 4, 5].map(value => (
@@ -193,7 +310,7 @@ const FormQuestion = (props) => {
                     ))}
                 </div>
             );
-        } else if (selectedQuestionType === "Multiple Choice grid") {
+        } else if (selectedQuestionType === QuestionType.MULTIPLE_CHOICE_GRID) {
             return (
                 <div className="my-5">
                     <table className="w-full">
@@ -220,7 +337,7 @@ const FormQuestion = (props) => {
                     </table>
                 </div>
             );
-        } else if (selectedQuestionType === "Checkbox grid") {
+        } else if (selectedQuestionType === QuestionType.CHECKBOX_GRID) {
             return (
                 <div className="my-5">
                     <table className="w-full">
@@ -247,13 +364,13 @@ const FormQuestion = (props) => {
                     </table>
                 </div>
             );
-        } else if (selectedQuestionType === "Date") {
+        } else if (selectedQuestionType === QuestionType.DATE) {
             return (
                 <div className="my-5">
                     <input type="date" className="p-2 border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none"/>
                 </div>
             );
-        } else if (selectedQuestionType === "Time") {
+        } else if (selectedQuestionType === QuestionType.TIME) {
             return (
                 <div className="my-5">
                     <input type="time" className="p-2 border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none"/>
@@ -269,14 +386,16 @@ const FormQuestion = (props) => {
             <div className="flex flex-col items-between mb-2">
                 <div className="flex flex-row justify-between items-start mb-2">
                     <div className="flex-1">
-                        <input
+                        <input placeholder={question}
                             value={question}
+                               onChange={(e)=> setQuestion(e.target.value)}
                             className="w-full text-lg font-medium mb-2 p-1 border-b border-transparent hover:border-gray-300 focus:outline-none focus:border-blue-500"
                         />
                     </div>
                     {showDescription && <div className="flex-1">
                         <input
                             value={description}
+                            onChange={(e)=> setDescription(e.target.value)}
                             className="w-full text-sm mb-2 p-1 border-b border-transparent hover:border-gray-300 focus:outline-none focus:border-blue-500"
                         />
                     </div>}
@@ -293,25 +412,36 @@ const FormQuestion = (props) => {
                     <hr className="w-full"/>
                     <div className="flex flex-row">
                         <div>
+                            <button onClick={saveQuestion}
+
+                                className="bg-blue-500 text-white px-4 py-1 rounded"
+                            >
+                                Save
+                            </button>
+                        </div>
+                        <div>
                             <IconHover icon={<MdContentCopy className="text-gray-500" size={20}/>} text="Duplicate Question"/>
                         </div>
                         <div>
                             <IconHover icon={<FaRegTrashAlt className="text-gray-500" size={20}/>} text="Delete Question"/>
                         </div>
-                        <div  className="text-gray-500 flex items-center gap-2">
+                        <div  className="text-gray-500 flex items-start gap-2">
                             <label htmlFor="required">Required</label>
 
                             <Switch className="data-[state=checked]:bg-purple-600
                             data-[state=unchecked]:bg-gray-500
                             [&>span]:data-[state=checked]:bg-white
-    [&>span]:data-[state=unchecked]:bg-gray-50
-                            " id="required"/>
+                            [&>span]:data-[state=unchecked]:bg-gray-50"
+                                    id="required"
+                                    checked={questionIsRequired}
+                                    onCheckedChange={setQuestionIsRequired}
+                            />
 
                         </div>
-                        <div>
+                        <div className="flex items-center">
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <button className="ml-2 p-2 rounded-full hover:bg-gray-100 cursor-pointer">
+                                    <button className="ml-2 px-2  rounded-full hover:bg-gray-100 cursor-pointer">
                                         <BsThreeDotsVertical className="text-gray-500" size={20}/>
                                     </button>
                                 </DropdownMenuTrigger>

@@ -6,32 +6,61 @@ import {TfiLayoutGrid3Alt} from "react-icons/tfi";
 import {CgMenuGridO} from "react-icons/cg";
 import {GrTextAlignFull} from "react-icons/gr";
 
-export const QuestionType = [
-    "Short Answer",
-    "Paragraph",
-    "Multiple Choice",
-    "Checkboxes",
-    "Dropdown",
-    "File Upload",
-    "Linear Scale",
-    "Rating",
-    "Multiple Choice grid",
-    "Checkbox grid",
-    "Date",
-    "Time"
-]
+export const QuestionType = {
+    TEXT: "text",
+    PARAGRAPH: "paragraph",
+    DATE: "date",
+    TIME: "time",
+    MULTIPLE_CHOICE: "multiple_choice",
+    CHECKBOXES: "checkboxes",
+    DROPDOWN: "dropdown",
+    CHECKBOX_GRID: "checkbox_grid",
+    LINEAR_SCALE: "linear_scale",
+    FILE_UPLOAD: "file_upload",
+    RATING: "rating",
+    MULTIPLE_CHOICE_GRID: "multiple_choice_grid",
+};
+
+export const QuestionTypeList = [
+    QuestionType.TEXT,
+    QuestionType.PARAGRAPH,
+    QuestionType.MULTIPLE_CHOICE,
+    QuestionType.CHECKBOXES,
+    QuestionType.DROPDOWN,
+    QuestionType.FILE_UPLOAD,
+    QuestionType.LINEAR_SCALE,
+    QuestionType.CHECKBOX_GRID,
+    QuestionType.DATE,
+    QuestionType.TIME,
+];
+
+
+export const questionTypeLabel = {
+    [QuestionType.TEXT]: "Short Answer",
+    [QuestionType.PARAGRAPH]: "Paragraph",
+    [QuestionType.MULTIPLE_CHOICE]: "Multiple Choice",
+    [QuestionType.CHECKBOXES]: "Checkboxes",
+    [QuestionType.DROPDOWN]: "Dropdown",
+    [QuestionType.FILE_UPLOAD]: "File Upload",
+    [QuestionType.LINEAR_SCALE]: "Linear Scale",
+    [QuestionType.CHECKBOX_GRID]: "Checkbox grid",
+    [QuestionType.DATE]: "Date",
+    [QuestionType.TIME]: "Time",
+    [QuestionType.RATING]: "Rating",
+    [QuestionType.MULTIPLE_CHOICE_GRID]: "Multiple Choice grid",
+};
 
 export const questionTypeWiseIcon = {
-    "Short Answer": <MdOutlineShortText className="text-gray-500"/>,
-    "Paragraph": <GrTextAlignFull className="text-gray-500"/>,
-    "Multiple Choice": <MdRadioButtonChecked className="text-gray-500"/>,
-    "Checkboxes": <FaRegCheckSquare className="text-gray-500"/>,
-    "Dropdown": <IoIosArrowDropdown className="text-gray-500"/>,
-    "File Upload": <AiOutlineCloudUpload className="text-gray-500"/>,
-    "Linear Scale": <MdOutlineLinearScale className="text-gray-500"/>,
-    "Rating": <FaRegStar className="text-gray-500"/>,
-    "Multiple Choice grid": <CgMenuGridO className="text-gray-500"/>,
-    "Checkbox grid": <TfiLayoutGrid3Alt className="text-gray-500"/>,
-    "Date": <IoMdCalendar className="text-gray-500"/>,
-    "Time": <IoMdTime className="text-gray-500"/>
-}
+    [QuestionType.TEXT]: <MdOutlineShortText className="text-gray-500"/>,
+    [QuestionType.PARAGRAPH]: <GrTextAlignFull className="text-gray-500"/>,
+    [QuestionType.MULTIPLE_CHOICE]: <MdRadioButtonChecked className="text-gray-500"/>,
+    [QuestionType.CHECKBOXES]: <FaRegCheckSquare className="text-gray-500"/>,
+    [QuestionType.DROPDOWN]: <IoIosArrowDropdown className="text-gray-500"/>,
+    [QuestionType.FILE_UPLOAD]: <AiOutlineCloudUpload className="text-gray-500"/>,
+    [QuestionType.LINEAR_SCALE]: <MdOutlineLinearScale className="text-gray-500"/>,
+    [QuestionType.CHECKBOX_GRID]: <TfiLayoutGrid3Alt className="text-gray-500"/>,
+    [QuestionType.DATE]: <IoMdCalendar className="text-gray-500"/>,
+    [QuestionType.TIME]: <IoMdTime className="text-gray-500"/>,
+    [QuestionType.RATING]: <FaRegStar className="text-gray-500"/>,
+    [QuestionType.MULTIPLE_CHOICE_GRID]: <CgMenuGridO className="text-gray-500"/>,
+};

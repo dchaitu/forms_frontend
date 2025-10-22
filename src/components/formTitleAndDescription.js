@@ -9,12 +9,14 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
+import {API_BASE_URL} from "@/constants/constants";
 
 const FormTitleAndDescription = (props) => {
     const {editTitleAndDescription} = props;
-    const title = "Title";
-    const description = "Description (optional)"
+    const [title, setTitle] = useState("Title");
+    const [description, setDescription] = useState("Description (optional)")
     const [showDescription, setShowDescription] = useState(false);
+    const [formId, setFormId] = useState(null);
     const menuOptions = [
         {
             label: "Description",
@@ -22,6 +24,35 @@ const FormTitleAndDescription = (props) => {
             setState: setShowDescription
         }
     ];
+
+    const saveTitleAndDescription = async () => {
+        try {
+            const isUpdate = !!formId;
+            const url = `${API_BASE_URL}/form/create/`;
+            const method = isUpdate ? 'PUT' : 'POST';
+
+            const resp = await fetch(url,
+                {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        description: description,
+                    }),
+                })
+            const response = await resp.json();
+            console.log(response);
+            if (!isUpdate && response.id) {
+                setFormId(response.id);
+            }
+        }
+        catch (error) {
+            console.error('Error saving form header:', error);
+        }
+    }
+
     return (
         <div
             className="flex p-5 bg-white shadow rounded-lg my-2 focus:outline-none border-l-4 focus:border-l-[#4285f4] border-r-0 border-b-0"
@@ -31,6 +62,7 @@ const FormTitleAndDescription = (props) => {
                     <div className="w-full">
                         <input
                             value={title}
+                            onChange={(e) => setTitle(e.target.value)}
                             className="w-full text-lg font-medium mb-2 p-1 border-b border-transparent hover:border-gray-300 focus:outline-none focus:border-blue-500"
                         />
                     </div>
@@ -38,6 +70,7 @@ const FormTitleAndDescription = (props) => {
                         <div className="w-full text-gray-500">
                             <input
                                 value={description}
+                                onChange={(e) => setDescription(e.target.value)}
                                 className="w-full text-sm mb-2 p-1 border-b border-transparent hover:border-gray-300 focus:outline-none focus:border-blue-500"
                             />
                         </div>}
@@ -47,6 +80,13 @@ const FormTitleAndDescription = (props) => {
                     <div className="flex  flex-col  items-end">
 
                         <div className="flex flex-row">
+                            <div>
+                                <button onClick={saveTitleAndDescription}
+                                        className="bg-blue-500 text-white px-4 py-1 rounded"
+                                >
+                                    Save
+                                </button>
+                            </div>
                             <div>
                                 <IconHover icon={<MdContentCopy className="text-gray-500" size={20}/>} text="Duplicate Question"/>
                             </div>
