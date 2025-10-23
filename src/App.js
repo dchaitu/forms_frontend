@@ -5,6 +5,7 @@ import {TooltipProvider} from "./components/ui/tooltip";
 import PageNotFound from "@/components/pageNotFound";
 import SettingsPage from "@/pages/settingsPage";
 import ResponsesPage from "@/pages/responsesPage";
+import AnswerPage from "./pages/AnswerPage";
 
 function App() {
     return (
@@ -15,8 +16,8 @@ function App() {
                     <Route path="/invalid" element={<PageNotFound />} />
                     <Route path="*" element={<Navigate to="/invalid" />} />
                     <Route path="/settings" element={<SettingsPage />} />
-                    <Route  path="/response/:formUUID" element={<ResponsesPage/>} />
-
+                    <Route path="/responses/:formId" element={<ResponsesPage />} />
+                    <Route path="/response/:unique_id" element={<AnswerPage />} />
                 </Routes>
             </TooltipProvider>
         </div>

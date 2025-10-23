@@ -18,7 +18,7 @@ const MainPage = () => {
         const fetchData = async () => {
             const resp = await fetch(`${API_BASE_URL}/form/${formId}/complete/`);
             const data = await resp.json();
-            console.log(data);
+            console.log("formData",data);
             setFormData(data);
         }
         fetchData();
@@ -78,7 +78,7 @@ const MainPage = () => {
 
     return (
         <div id="mainPage">
-            <Header/>
+            <Header formId={formId} responseLink={formData?.response_link}/>
             <div id="form" className="bg-violet-100 min-h-screen px-10 ">
                 <div className="flex flex-row justify-center">
                     <div className="relative">
