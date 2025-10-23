@@ -15,7 +15,7 @@ function App() {
                     <Route path="/invalid" element={<PageNotFound />} />
                     <Route path="*" element={<Navigate to="/invalid" />} />
                     <Route path="/settings" element={<SettingsPage />} />
-                    <Route  path="/responses" element={<ResponsesPage/>} />
+                    <Route  path="/response/:formUUID" element={<ResponsesPage/>} />
 
                 </Routes>
             </TooltipProvider>

@@ -71,8 +71,8 @@ const FormSection = (props) => {
                         Save
                     </button>
                     <IconHover icon={<BiCollapseVertical
-                        size={20} className="text-gray-500"/>} text="Add Inline Image"/>
-                    <IconHover icon={<BsThreeDotsVertical size={20} className="text-gray-500"/>} text="Add Inline Image"/>
+                        size={20} className="text-gray-500"/>} text="Collapse section"/>
+                    <IconHover icon={<BsThreeDotsVertical size={20} className="text-gray-500"/>} text="More"/>
                 </div>
             )}
         </div>

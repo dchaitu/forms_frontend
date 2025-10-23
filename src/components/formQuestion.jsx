@@ -18,14 +18,14 @@ import {API_BASE_URL} from "@/constants/constants";
 import {QuestionType} from "@/constants/questionType";
 
 const FormQuestion = (props) => {
-    const {editQuestion, questionData} = props;
+    const {editQuestion, questionData, deleteQuestion} = props;
     const [selectedQuestionType, setSelectedQuestionType] = useState(questionData?.question_type || QuestionType.MULTIPLE_CHOICE);
     const [selectedStartValue, setSelectedStartValue] = useState(0);
     const [selectedEndValue, setSelectedEndValue] = useState(5);
     const [question, setQuestion] = useState(questionData?.title || "Untitled Question")
     const [description, setDescription] = useState(questionData?.description || "Description (optional)")
-    const [options, setOptions] = useState(questionData?.options?.map(o => o.text) || []);
-    const [questionIsRequired, setQuestionIsRequired] = useState(false);
+    const [options, setOptions] = useState(questionData?.options || []);
+    const [questionIsRequired, setQuestionIsRequired] = useState(questionData?.is_required || false);
     const gridOptions = {
         rows: ["Row 1", "Row 2"],
         columns: ["Column 1", "Column 2", "Column 3"]
@@ -34,15 +34,14 @@ const FormQuestion = (props) => {
     const [showGoToSection, setShowGoToSection] = useState(false);
     const [showShuffleOptionOrder, setShowShuffleOptionOrder] = useState(false);
 
-    const sectionId = 1;
     const handleOptionChange = (index, newText) => {
         const newOptions = [...options];
-        newOptions[index] = newText;
+        newOptions[index] = { ...newOptions[index], text: newText };
         setOptions(newOptions);
     };
 
     const addOption = () => {
-        setOptions([...options, `Option ${options.length + 1}`]);
+        setOptions([...options, { text: `Option ${options.length + 1}` }]);
     };
 
     const removeOption = (index) => {
@@ -52,38 +51,81 @@ const FormQuestion = (props) => {
     };
 
     const saveQuestion = async () => {
-        const resp =   await fetch(`${API_BASE_URL}/question/create/`,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    section_id: sectionId,
-                    title: question,
-                    description: description,
-                    question_type: selectedQuestionType.value ? selectedQuestionType.value : selectedQuestionType,
-                    is_required: questionIsRequired,
-                    // options: options, // Add options to the payload
-                }),
+        // First, save the question to get an ID if it's new
+        const isUpdate = !!questionData?.id;
+        const questionUrl = isUpdate
+            ? `${API_BASE_URL}/question/${questionData.id}/`
+            : `${API_BASE_URL}/question/create/`;
+        const questionMethod = isUpdate ? 'PUT' : 'POST';
+
+        const questionBody = {
+            title: question,
+            description: description,
+            question_type: selectedQuestionType.value ? selectedQuestionType.value : selectedQuestionType,
+            is_required: questionIsRequired,
+        };
+
+        if (!isUpdate) {
+            questionBody.section_id = questionData.section_id;
+        }
+
+        try {
+            const questionResp = await fetch(questionUrl, {
+                method: questionMethod,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(questionBody),
             });
-        const data = await resp.json();
-        console.log(data);
-    }
-    const deleteQuestion = async () => {
-        const resp = await fetch(`${API_BASE_URL}/question/${questionData.id}/`,
-            {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    id: questionData.id,
-                }),
+
+            const savedQuestion = await questionResp.json();
+            console.log('Saved question:', savedQuestion);
+
+            // Now, handle options
+            const questionId = savedQuestion.id || questionData.id;
+            if (!questionId) {
+                console.error("Could not get question ID for saving options.");
+                return;
+            }
+
+            const optionPromises = options.map(option => {
+                const optionBody = { ...option, question_id: questionId };
+                if (option.id) {
+                    // Update existing option
+                    return fetch(`${API_BASE_URL}/option/${option.id}/`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(optionBody),
+                    });
+                } else {
+                    // Create new option
+                    return fetch(`${API_BASE_URL}/option/create/`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(optionBody),
+                    });
+                }
             });
-        const data = await resp.json();
-        console.log(data);
-    }
+
+            const responses = await Promise.all(optionPromises);
+            const savedOptionsData = await Promise.all(responses.map(res => res.json()));
+            console.log('Saved options:', savedOptionsData);
+
+            // Also handle deleted options
+            const originalOptionIds = questionData.options?.map(o => o.id).filter(id => id) || [];
+            const currentOptionIds = options.map(o => o.id).filter(id => id);
+            const deletedOptionIds = originalOptionIds.filter(id => !currentOptionIds.includes(id));
+
+            if (deletedOptionIds.length > 0) {
+                const deletePromises = deletedOptionIds.map(id =>
+                    fetch(`${API_BASE_URL}/option/${id}/`, { method: 'DELETE' })
+                );
+                await Promise.all(deletePromises);
+                console.log('Deleted options with IDs:', deletedOptionIds);
+            }
+
+        } catch (error) {
+            console.error(`Error saving question or options:`, error);
+        }
+    };
 
     const menuOptions = [
         {
@@ -103,36 +145,17 @@ const FormQuestion = (props) => {
         }
     ];
 
-    const saveOption = async () => {
-        for (let option of options) {
-            const resp = await fetch(`${API_BASE_URL}/question/create/`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        question_id: sectionId,
-                        text: option,
-
-                    }),
-                });
-            const data = await resp.json();
-            console.log(data);
-        }
-    }
-
     const renderOptions = () => {
         if (selectedQuestionType === QuestionType.MULTIPLE_CHOICE) {
             if (editQuestion) {
                 return (
                     <div>
                         {options.map((option, index) => (
-                            <div key={index} className="flex items-center my-2">
+                            <div key={option.id || index} className="flex items-center my-2">
                                 <input type="radio" className="h-4 w-4 text-gray-400" disabled />
                                 <input
                                     type="text"
-                                    value={option}
+                                    value={option.text}
                                     onChange={(e) => handleOptionChange(index, e.target.value)}
                                     className="ml-3 p-1 border-b-2 border-transparent focus:border-blue-500 focus:outline-none"
                                 />
@@ -151,19 +174,19 @@ const FormQuestion = (props) => {
                 );
             }
             return options.map((option, index) => (
-                <div key={index} className="flex items-center my-5">
+                <div key={option.id || index} className="flex items-center my-5">
                     <input
                         type="radio"
                         id={`option-${index}`}
                         name="form-options"
-                        value={option.toLowerCase().replace(' ', '-')}
+                        value={option.text.toLowerCase().replace(' ', '-')}
                         className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                     />
                     <label
                         htmlFor={`option-${index}`}
                         className="ml-3 block text-sm font-medium text-gray-700"
                     >
-                        {option}
+                        {option.text}
                     </label>
                 </div>
             ));
@@ -172,11 +195,11 @@ const FormQuestion = (props) => {
                 return (
                     <div>
                         {options.map((option, index) => (
-                            <div key={index} className="flex items-center my-2">
+                            <div key={option.id || index} className="flex items-center my-2">
                                 <input type="checkbox" className="h-4 w-4 text-gray-400 rounded" disabled />
                                 <input
                                     type="text"
-                                    value={option}
+                                    value={option.text}
                                     onChange={(e) => handleOptionChange(index, e.target.value)}
                                     className="ml-3 p-1 border-b-2 border-transparent focus:border-blue-500 focus:outline-none"
                                 />
@@ -195,32 +218,33 @@ const FormQuestion = (props) => {
                 );
             }
             return options.map((option, index) => (
-                <div key={index} className="flex items-center my-5">
+                <div key={option.id || index} className="flex items-center my-5">
                     <input
                         type="checkbox"
                         id={`option-${index}`}
                         name="form-options"
-                        value={option.toLowerCase().replace(' ', '-')}
+                        value={option.text.toLowerCase().replace(' ', '-')}
                         className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                     />
                     <label
                         htmlFor={`option-${index}`}
                         className="ml-3 block text-sm font-medium text-gray-700"
                     >
-                        {option}
+                        {option.text}
                     </label>
                 </div>
             ));
-        } else if (selectedQuestionType === QuestionType.DROPDOWN) {
+        }
+        else if (selectedQuestionType === QuestionType.DROPDOWN) {
             if (editQuestion) {
                 return (
                     <div>
                         {options.map((option, index) => (
-                            <div key={index} className="flex items-center my-2">
+                            <div key={option.id || index} className="flex items-center my-2">
                                 <span className="mr-2">{index + 1}.</span>
                                 <input
                                     type="text"
-                                    value={option}
+                                    value={option.text}
                                     onChange={(e) => handleOptionChange(index, e.target.value)}
                                     className="p-1 border-b-2 border-transparent focus:border-blue-500 focus:outline-none"
                                 />
@@ -239,17 +263,18 @@ const FormQuestion = (props) => {
                 );
             }
             return options.map((option, index) => (
-                <div key={index} className="flex items-center my-5">
+                <div key={option.id || index} className="flex items-center my-5">
                     <span className="mr-2">{index + 1}.</span>
                     <label
                         htmlFor={`option-${index}`}
                         className="block text-sm font-medium text-gray-700"
                     >
-                        {option}
+                        {option.text}
                     </label>
                 </div>
             ));
-        } else if (selectedQuestionType === QuestionType.TEXT) {
+        }
+        else if (selectedQuestionType === QuestionType.TEXT) {
             return (
                 <div className="my-3 flex items-start gap-2">
                     <input
@@ -260,7 +285,8 @@ const FormQuestion = (props) => {
                     />
                 </div>
             );
-        } else if (selectedQuestionType === QuestionType.PARAGRAPH) {
+        }
+        else if (selectedQuestionType === QuestionType.PARAGRAPH) {
             return (
                 <div className="my-5">
                     <textarea
@@ -270,7 +296,8 @@ const FormQuestion = (props) => {
                     />
                 </div>
             );
-        } else if (selectedQuestionType === QuestionType.FILE_UPLOAD) {
+        }
+        else if (selectedQuestionType === QuestionType.FILE_UPLOAD) {
             return (
                 <div className="my-5">
                     <div className="flex items-center gap-2 p-3 border border-dashed rounded-md w-fit">
@@ -279,7 +306,8 @@ const FormQuestion = (props) => {
                     </div>
                 </div>
             );
-        } else if (selectedQuestionType === "Linear Scale") {
+        }
+        else if (selectedQuestionType === QuestionType.LINEAR_SCALE) {
             const start = [0,1];
             const end = [2,3,4,5,6,7,8,9,10]
             return (
@@ -336,7 +364,8 @@ const FormQuestion = (props) => {
                     </div>
                 </div>
             );
-        } else if (selectedQuestionType === QuestionType.RATING) {
+        }
+        else if (selectedQuestionType === QuestionType.RATING) {
             return (
                 <div className="my-5 flex items-center gap-2">
                     {[1, 2, 3, 4, 5].map(value => (
@@ -344,7 +373,8 @@ const FormQuestion = (props) => {
                     ))}
                 </div>
             );
-        } else if (selectedQuestionType === QuestionType.MULTIPLE_CHOICE_GRID) {
+        }
+        else if (selectedQuestionType === QuestionType.MULTIPLE_CHOICE_GRID) {
             return (
                 <div className="my-5">
                     <table className="w-full">
@@ -371,7 +401,8 @@ const FormQuestion = (props) => {
                     </table>
                 </div>
             );
-        } else if (selectedQuestionType === QuestionType.CHECKBOX_GRID) {
+        }
+        else if (selectedQuestionType === QuestionType.CHECKBOX_GRID) {
             return (
                 <div className="my-5">
                     <table className="w-full">
@@ -398,13 +429,15 @@ const FormQuestion = (props) => {
                     </table>
                 </div>
             );
-        } else if (selectedQuestionType === QuestionType.DATE) {
+        }
+        else if (selectedQuestionType === QuestionType.DATE) {
             return (
                 <div className="my-5">
                     <input type="date" className="p-2 border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none"/>
                 </div>
             );
-        } else if (selectedQuestionType === QuestionType.TIME) {
+        }
+        else if (selectedQuestionType === QuestionType.TIME) {
             return (
                 <div className="my-5">
                     <input type="time" className="p-2 border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none"/>
@@ -456,7 +489,7 @@ const FormQuestion = (props) => {
                         <div>
                             <IconHover icon={<MdContentCopy className="text-gray-500" size={20}/>} text="Duplicate Question"/>
                         </div>
-                        <div onClick={deleteQuestion}>
+                        <div onClick={() => deleteQuestion(questionData.id)}>
                             <IconHover icon={<FaRegTrashAlt className="text-gray-500" size={20}/>} text="Delete Question"/>
                         </div>
                         <div  className="text-gray-500 flex items-start gap-2">

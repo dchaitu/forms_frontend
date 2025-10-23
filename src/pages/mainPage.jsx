@@ -13,16 +13,44 @@ const MainPage = () => {
     const componentRefs = useRef(new Map());
 
     const [formData, setFormData] = useState(null);
+    const [formId, setFormId] = useState(1);
     useEffect(() => {
         const fetchData = async () => {
-            const resp = await fetch(`${API_BASE_URL}/form/1/complete/`);
+            const resp = await fetch(`${API_BASE_URL}/form/${formId}/complete/`);
             const data = await resp.json();
             console.log(data);
             setFormData(data);
         }
         fetchData();
-        console.log(formData);
-    }, [formData]);
+    }, [formId]);
+
+    const deleteQuestion = async (questionId) => {
+        try {
+            const resp = await fetch(`${API_BASE_URL}/question/${questionId}/`, {
+                method: 'DELETE',
+            });
+            const data = await resp.json();
+            console.log(data);
+
+            if (resp.ok) {
+                setFormData(prevData => {
+                    const newData = { ...prevData };
+                    for (const section of newData.sections) {
+                        const questionIndex = section.questions.findIndex(q => q.id === questionId);
+                        if (questionIndex !== -1) {
+                            section.questions.splice(questionIndex, 1);
+                            break;
+                        }
+                    }
+                    return newData;
+                });
+            } else {
+                console.error("Failed to delete question");
+            }
+        } catch (error) {
+            console.error("Error deleting question:", error);
+        }
+    };
 
     // Not implementing add/edit functionality as per the request to focus on rendering.
     const addQuestion = () => console.log("Add Question clicked");
@@ -88,6 +116,7 @@ const MainPage = () => {
                                             <FormQuestion
                                                 questionData={question}
                                                 editQuestion={selectedComponent === `question_${question.id}`}
+                                                deleteQuestion={deleteQuestion}
                                             />
                                         </div>
                                     ))}

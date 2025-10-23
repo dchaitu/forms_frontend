@@ -2,11 +2,15 @@ import HeaderIcons from "@/constants/headerIcons";
 import FormActionsDropdown from "@/constants/formActionsDropdown";
 import { NavLink } from 'react-router-dom';
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
+import {Dialog, DialogTrigger} from "@/components/ui/dialog";
+import PublishDialog from "@/constants/publishDialog";
+import {API_BASE_URL} from "@/constants/constants";
 
-const Header = () => {
+const Header = (props) => {
     // className({ isActive, isPending, isTransitioning })
     // React Router automatically calls your className function with a special object
     // that includes { isActive, isPending, isTransitioning }
+    const {formId} = props;
 
     const getNavLinkClass = ({ isActive }) => {
         console.log("NavLink is active ",isActive);
@@ -15,6 +19,9 @@ const Header = () => {
         const inactiveStyle = "text-gray-500 hover:text-violet-800 px-4 py-2 text-sm font-medium"
         return  isActive ? activeStyle: inactiveStyle;
     }
+
+
+
     return (
         <div id="header" className="bg-white">
             <div className="flex flex-col">
@@ -29,7 +36,15 @@ const Header = () => {
 
                 <div className="flex justify-end items-center">
                     <HeaderIcons/>
-                    <button className="bg-violet-800 hover:bg-violet-600 rounded-md font-semibold px-6 py-2 mx-2 text-xs text-white">Publish</button>
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <button
+                                className="bg-violet-800 hover:bg-violet-600
+                                rounded-md font-semibold
+                                px-6 py-2 mx-2 text-xs text-white">Publish</button>
+                        </DialogTrigger>
+                        <PublishDialog formId={formId}/>
+                    </Dialog>
 
                     <FormActionsDropdown />
                     <Avatar>
