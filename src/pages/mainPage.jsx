@@ -1,4 +1,4 @@
-import FormHeader from "@/components/formHeader";
+import FormSection from "@/components/formSection";
 import FormQuestion from "@/components/formQuestion";
 import {useState, useRef, useEffect} from "react";
 import AddElementsTray from "@/components/addElementsTray";
@@ -9,31 +9,25 @@ import {API_BASE_URL} from "@/constants/constants";
 const MainPage = () => {
     const [selectedComponent, setSelectedComponent] = useState(null);
     const [trayStyle, setTrayStyle] = useState({});
-    const [questions, setQuestions] = useState([{id: 'initial_question'}]);
-
     const formColumnRef = useRef(null);
     const componentRefs = useRef(new Map());
-    const [formList, setFormList] = useState([]);
 
-    const addQuestion = () => {
-        const newId = `question_${Date.now()}`;
-        setQuestions(prev => [...prev, {id: newId}]);
-        setSelectedComponent(newId); // Select the new question
-    };
-
-    const addTitleAndDescription = () => {
-        setSelectedComponent('titleAndDescription');
-    };
-
+    const [formData, setFormData] = useState(null);
     useEffect(() => {
         const fetchData = async () => {
-            const resp = await fetch(`${API_BASE_URL}/form/all/`);
+            const resp = await fetch(`${API_BASE_URL}/form/1/complete/`);
             const data = await resp.json();
             console.log(data);
-            setFormList(data);
+            setFormData(data);
         }
         fetchData();
-    }, [])
+        console.log(formData);
+    }, [formData]);
+
+    // Not implementing add/edit functionality as per the request to focus on rendering.
+    const addQuestion = () => console.log("Add Question clicked");
+    const addTitleAndDescription = () => console.log("Add Title and Description clicked");
+
 
     useEffect(() => {
         const selectedRef = componentRefs.current.get(selectedComponent);
@@ -50,10 +44,14 @@ const MainPage = () => {
         }
     }, [selectedComponent]);
 
+    if (!formData) {
+        return <div>Loading...</div>; // Or some other loading state
+    }
+
     return (
         <div id="mainPage">
             <Header/>
-            <div id="form" className="bg-violet-100 h-screen px-10 ">
+            <div id="form" className="bg-violet-100 min-h-screen px-10 ">
                 <div className="flex flex-row justify-center">
                     <div className="relative">
                         <div className="flex flex-col" ref={formColumnRef}>
@@ -61,38 +59,40 @@ const MainPage = () => {
                                 ref={el => componentRefs.current.set('header', el)}
                                 onClick={() => setSelectedComponent('header')}
                             >
-                                {
-                                    formList.length > 0 ? (
-                                        formList.map((form) => (
-                                            <FormHeader
-                                                key={form.id}
-                                                formId={form.id}
-                                                title={form.title}
-                                                description={form.description}
-                                                isSelected={selectedComponent==='header'}
-                                            />
-                                        ))
-                                    ) : (
-                                        <FormHeader isSelected={selectedComponent==='header'}/>
-                                    )
-                                }
+                               <FormTitleAndDescription
+                                    editTitleAndDescription={selectedComponent === 'header'}
+                                    title={formData.title}
+                                    description={formData.description}
+                                />
                             </div>
-                            {questions.map(q => (
-                                <div
-                                    className="my-2"
-                                    key={q.id}
-                                    ref={el => componentRefs.current.set(q.id, el)}
-                                    onClick={() => setSelectedComponent(q.id)}
-                                >
-                                    <FormQuestion editQuestion={selectedComponent === q.id}/>
+                            {formData.sections.map((section) => (
+                                <div key={section.id}>
+                                    <div
+                                        className="my-2"
+                                        ref={el => componentRefs.current.set(`section_${section.id}`, el)}
+                                        onClick={() => setSelectedComponent(`section_${section.id}`)}
+                                    >
+                                        <FormSection
+                                            title={section.title}
+                                            description={section.description}
+                                            isSelected={selectedComponent === `section_${section.id}`}
+                                        />
+                                    </div>
+                                    {section.questions.map(question => (
+                                        <div
+                                            className="my-2"
+                                            key={question.id}
+                                            ref={el => componentRefs.current.set(`question_${question.id}`, el)}
+                                            onClick={() => setSelectedComponent(`question_${question.id}`)}
+                                        >
+                                            <FormQuestion
+                                                questionData={question}
+                                                editQuestion={selectedComponent === `question_${question.id}`}
+                                            />
+                                        </div>
+                                    ))}
                                 </div>
                             ))}
-                            <div
-                                ref={el => componentRefs.current.set('titleAndDescription', el)}
-                                onClick={() => setSelectedComponent('titleAndDescription')}
-                            >
-                                <FormTitleAndDescription editTitleAndDescription={selectedComponent === 'titleAndDescription'}/>
-                            </div>
                         </div>
                         {selectedComponent &&
                             <div style={trayStyle}>

@@ -2,7 +2,7 @@ import IconHover from "@/constants/iconHover";
 import {MdContentCopy} from "react-icons/md";
 import {FaRegTrashAlt} from "react-icons/fa";
 import {BsThreeDotsVertical} from "react-icons/bs";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {
     DropdownMenu, DropdownMenuCheckboxItem,
     DropdownMenuContent, DropdownMenuGroup, DropdownMenuLabel,
@@ -12,10 +12,10 @@ import {
 import {API_BASE_URL} from "@/constants/constants";
 
 const FormTitleAndDescription = (props) => {
-    const {editTitleAndDescription} = props;
-    const [title, setTitle] = useState("Title");
-    const [description, setDescription] = useState("Description (optional)")
-    const [showDescription, setShowDescription] = useState(false);
+    const {editTitleAndDescription, title: initialTitle, description: initialDescription} = props;
+    const [title, setTitle] = useState(initialTitle || "Title");
+    const [description, setDescription] = useState(initialDescription || "Description (optional)")
+    const [showDescription, setShowDescription] = useState(!!initialDescription);
     const [formId, setFormId] = useState(null);
     const menuOptions = [
         {
@@ -25,6 +25,14 @@ const FormTitleAndDescription = (props) => {
         }
     ];
 
+    useEffect(() => {
+        if (initialTitle) setTitle(initialTitle);
+        if (initialDescription) {
+            setDescription(initialDescription);
+            if (initialDescription) setShowDescription(true);
+        }
+    }, [initialTitle, initialDescription]);
+    
     const saveTitleAndDescription = async () => {
         try {
             const isUpdate = !!formId;

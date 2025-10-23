@@ -6,23 +6,23 @@ import {useEffect, useRef, useState} from "react";
 import {API_BASE_URL} from "@/constants/constants";
 
 
-const FormHeader = (props) => {
+const FormSection = (props) => {
     const {isSelected, formId: initialFormId, title, description} = props;
-    const [headerName, setHeaderName] = useState(title || "Untitled Form");
-    const [headerDescription, setHeaderDescription] = useState(description || "Form Description");
-    const [formId, setFormId] = useState(initialFormId);
-
+    const [sectionName, setSectionName] = useState(title || "Untitled Section");
+    const [sectionDescription, setSectionDescription] = useState(description || "Section Description");
+    // const [formId, setFormId] = useState(initialFormId);
+    const [sectionId, setSectionId] = useState(initialFormId);
     useEffect(() => {
-        if (title) setHeaderName(title);
-        if (description) setHeaderDescription(description);
+        if (title) setSectionName(title);
+        if (description) setSectionDescription(description);
     }, [title, description]);
 
     const ref = useRef();
 
-    const saveFormHeader = async () => {
+    const saveFormSection = async () => {
         try {
-            const isUpdate = !!formId;
-            const url = isUpdate ? `${API_BASE_URL}/form/${formId}/` : `${API_BASE_URL}/form/create/`;
+            const isUpdate = !!sectionId;
+            const url = isUpdate ? `${API_BASE_URL}/section/${sectionId}/` : `${API_BASE_URL}/form/create/`;
             const method = isUpdate ? 'PUT' : 'POST';
 
             const resp = await fetch(url,
@@ -32,14 +32,14 @@ const FormHeader = (props) => {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        title: headerName,
-                        description: headerDescription,
+                        title: sectionName,
+                        description: sectionDescription,
                     }),
                 })
             const response = await resp.json();
             console.log(response);
             if (!isUpdate && response.id) {
-                setFormId(response.id);
+                setSectionId(response.id);
             }
         }
         catch (error) {
@@ -60,12 +60,12 @@ const FormHeader = (props) => {
         <div ref={ref} className="border-gray-700 min-w-[80vw]" >
         <div className="flex flex-row p-5 bg-white rounded my-2 focus:outline-none border-t-8 border-t-[rgb(103,58,183)] border-l-4 focus:border-l-[#4285f4] border-r-0 border-b-0" tabIndex="0">
             <div className="flex flex-col">
-                <input placeholder="Untitled Form" value={headerName} onChange={(e) => setHeaderName(e.target.value)} className="rounded py-1 text-3xl"/>
-                <input placeholder={headerDescription} value={headerDescription} onChange={(e) => setHeaderDescription(e.target.value)}/>
+                <input placeholder="Untitled Form" value={sectionName} onChange={(e) => setSectionName(e.target.value)} className="rounded py-1 text-3xl"/>
+                <input placeholder={sectionDescription} value={sectionDescription} onChange={(e) => setSectionDescription(e.target.value)}/>
             </div>
             {isSelected &&(
                 <div className="flex items-start ml-auto">
-                    <button onClick={saveFormHeader}
+                    <button onClick={saveFormSection}
                             className="bg-blue-500 text-white px-4 py-1 rounded"
                     >
                         Save
@@ -82,4 +82,4 @@ const FormHeader = (props) => {
     )
 }
 
-export default FormHeader
+export default FormSection

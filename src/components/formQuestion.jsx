@@ -18,13 +18,13 @@ import {API_BASE_URL} from "@/constants/constants";
 import {QuestionType} from "@/constants/questionType";
 
 const FormQuestion = (props) => {
-    const {editQuestion} = props;
-    const [selectedQuestionType, setSelectedQuestionType] = useState(QuestionType.MULTIPLE_CHOICE);
+    const {editQuestion, questionData} = props;
+    const [selectedQuestionType, setSelectedQuestionType] = useState(questionData?.question_type || QuestionType.MULTIPLE_CHOICE);
     const [selectedStartValue, setSelectedStartValue] = useState(0);
     const [selectedEndValue, setSelectedEndValue] = useState(5);
-    const [question, setQuestion] = useState("Untitled Question")
-    const [description, setDescription] = useState("Description (optional)")
-    const [options, setOptions] = useState(["Option 1", "Option 2", "Option 3"]);
+    const [question, setQuestion] = useState(questionData?.title || "Untitled Question")
+    const [description, setDescription] = useState(questionData?.description || "Description (optional)")
+    const [options, setOptions] = useState(questionData?.options?.map(o => o.text) || []);
     const [questionIsRequired, setQuestionIsRequired] = useState(false);
     const gridOptions = {
         rows: ["Row 1", "Row 2"],
@@ -65,6 +65,20 @@ const FormQuestion = (props) => {
                     question_type: selectedQuestionType.value ? selectedQuestionType.value : selectedQuestionType,
                     is_required: questionIsRequired,
                     // options: options, // Add options to the payload
+                }),
+            });
+        const data = await resp.json();
+        console.log(data);
+    }
+    const deleteQuestion = async () => {
+        const resp = await fetch(`${API_BASE_URL}/question/${questionData.id}/`,
+            {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    id: questionData.id,
                 }),
             });
         const data = await resp.json();
@@ -442,7 +456,7 @@ const FormQuestion = (props) => {
                         <div>
                             <IconHover icon={<MdContentCopy className="text-gray-500" size={20}/>} text="Duplicate Question"/>
                         </div>
-                        <div>
+                        <div onClick={deleteQuestion}>
                             <IconHover icon={<FaRegTrashAlt className="text-gray-500" size={20}/>} text="Delete Question"/>
                         </div>
                         <div  className="text-gray-500 flex items-start gap-2">
