@@ -14,16 +14,15 @@ import {
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import {ChevronDownIcon} from "lucide-react";
-import {API_BASE_URL} from "@/constants/constants";
 import {QuestionType} from "@/constants/questionType";
 
 const FormQuestion = (props) => {
-    const {editQuestion, questionData, deleteQuestion} = props;
+    const {editQuestion, questionData, deleteQuestion, answerMode, onAnswerChange, response, saveQuestion} = props;
     const [selectedQuestionType, setSelectedQuestionType] = useState(questionData?.question_type || QuestionType.MULTIPLE_CHOICE);
     const [selectedStartValue, setSelectedStartValue] = useState(0);
     const [selectedEndValue, setSelectedEndValue] = useState(5);
     const [question, setQuestion] = useState(questionData?.title || "Untitled Question")
-    const [description, setDescription] = useState(questionData?.description || "Description (optional)")
+    const [description, setDescription] = useState(questionData?.description)
     const [options, setOptions] = useState(questionData?.options || []);
     const [questionIsRequired, setQuestionIsRequired] = useState(questionData?.is_required || false);
     const gridOptions = {
@@ -50,82 +49,112 @@ const FormQuestion = (props) => {
         setOptions(newOptions);
     };
 
-    const saveQuestion = async () => {
-        // First, save the question to get an ID if it's new
-        const isUpdate = !!questionData?.id;
-        const questionUrl = isUpdate
-            ? `${API_BASE_URL}/question/${questionData.id}/`
-            : `${API_BASE_URL}/question/create/`;
-        const questionMethod = isUpdate ? 'PUT' : 'POST';
-
-        const questionBody = {
+    const saveUpdatedQuestion = async () => {
+        const updatedQuestion = {
+            ...questionData,
             title: question,
             description: description,
-            question_type: selectedQuestionType.value ? selectedQuestionType.value : selectedQuestionType,
+            options: options,
             is_required: questionIsRequired,
+            question_type: selectedQuestionType
+        };
+        saveQuestion(questionData.id, updatedQuestion);
+    };
+
+    if (answerMode) {
+        const renderAnswerOptions = () => {
+            switch (questionData.question_type) {
+                case QuestionType.MULTIPLE_CHOICE:
+                    return questionData.options.map(option => (
+                        <div key={option.id} className="flex items-center my-2">
+                            <input
+                                type="radio"
+                                id={`option-${option.id}`}
+                                name={`question-${questionData.id}`}
+                                value={option.id}
+                                checked={response === option.id}
+                                onChange={(e) => onAnswerChange(parseInt(e.target.value))}
+                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                            />
+                            <label htmlFor={`option-${option.id}`} className="ml-3 block text-sm font-medium text-gray-700">
+                                {option.text}
+                            </label>
+                        </div>
+                    ));
+                case QuestionType.CHECKBOXES:
+                    return questionData.options.map(option => (
+                        <div key={option.id} className="flex items-center my-2">
+                            <input
+                                type="checkbox"
+                                id={`option-${option.id}`}
+                                value={option.id}
+                                checked={response?.includes(option.id) || false}
+                                onChange={(e) => {
+                                    const newResponse = response ? [...response] : [];
+                                    if (e.target.checked) {
+                                        newResponse.push(option.id);
+                                    } else {
+                                        const index = newResponse.indexOf(option.id);
+                                        if (index > -1) {
+                                            newResponse.splice(index, 1);
+                                        }
+                                    }
+                                    onAnswerChange(newResponse);
+                                }}
+                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            />
+                            <label htmlFor={`option-${option.id}`} className="ml-3 block text-sm font-medium text-gray-700">
+                                {option.text}
+                            </label>
+                        </div>
+                    ));
+                case QuestionType.TEXT:
+                    return (
+                        <input
+                            type="text"
+                            value={response || ''}
+                            onChange={(e) => onAnswerChange(e.target.value)}
+                            className="w-1/2 p-2 border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none"
+                            placeholder="Your answer"
+                        />
+                    );
+                case QuestionType.PARAGRAPH:
+                    return (
+                        <textarea
+                            value={response || ''}
+                            onChange={(e) => onAnswerChange(e.target.value)}
+                            className="w-full p-2 border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none"
+                            placeholder="Your answer"
+                        />
+                    );
+                case QuestionType.DROPDOWN:
+                    return (
+                        <select
+                            value={response || ''}
+                            onChange={(e) => onAnswerChange(parseInt(e.target.value))}
+                            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                        >
+                            <option value="" disabled>Select an option</option>
+                            {questionData.options.map(option => (
+                                <option key={option.id} value={option.id}>{option.text}</option>
+                            ))}
+                        </select>
+                    );
+                default:
+                    return <p className="text-red-500">This question type is not supported for answering yet.</p>;
+            }
         };
 
-        if (!isUpdate) {
-            questionBody.section_id = questionData.section_id;
-        }
-
-        try {
-            const questionResp = await fetch(questionUrl, {
-                method: questionMethod,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(questionBody),
-            });
-
-            const savedQuestion = await questionResp.json();
-            console.log('Saved question:', savedQuestion);
-
-            // Now, handle options
-            const questionId = savedQuestion.id || questionData.id;
-            if (!questionId) {
-                console.error("Could not get question ID for saving options.");
-                return;
-            }
-
-            const optionPromises = options.map(option => {
-                const optionBody = { ...option, question_id: questionId };
-                if (option.id) {
-                    // Update existing option
-                    return fetch(`${API_BASE_URL}/option/${option.id}/`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(optionBody),
-                    });
-                } else {
-                    // Create new option
-                    return fetch(`${API_BASE_URL}/option/create/`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(optionBody),
-                    });
-                }
-            });
-
-            const responses = await Promise.all(optionPromises);
-            const savedOptionsData = await Promise.all(responses.map(res => res.json()));
-            console.log('Saved options:', savedOptionsData);
-
-            // Also handle deleted options
-            const originalOptionIds = questionData.options?.map(o => o.id).filter(id => id) || [];
-            const currentOptionIds = options.map(o => o.id).filter(id => id);
-            const deletedOptionIds = originalOptionIds.filter(id => !currentOptionIds.includes(id));
-
-            if (deletedOptionIds.length > 0) {
-                const deletePromises = deletedOptionIds.map(id =>
-                    fetch(`${API_BASE_URL}/option/${id}/`, { method: 'DELETE' })
-                );
-                await Promise.all(deletePromises);
-                console.log('Deleted options with IDs:', deletedOptionIds);
-            }
-
-        } catch (error) {
-            console.error(`Error saving question or options:`, error);
-        }
-    };
+        return (
+            <div className="mb-6 p-6 border border-gray-200 rounded-lg bg-white flex flex-col items-start">
+                <h3 className="text-lg font-medium text-gray-900">{questionData.title}</h3>
+                {questionData.description && <p className="text-sm text-gray-500 mt-1">{questionData.description}</p>}
+                <div className="mt-4">
+                    {renderAnswerOptions()}
+                </div>
+            </div>
+        );
+    }
 
     const menuOptions = [
         {
@@ -479,7 +508,7 @@ const FormQuestion = (props) => {
                     <hr className="w-full"/>
                     <div className="flex flex-row">
                         <div>
-                            <button onClick={saveQuestion}
+                            <button onClick={saveUpdatedQuestion}
 
                                 className="bg-blue-500 text-white px-4 py-1 rounded"
                             >
@@ -539,4 +568,4 @@ const FormQuestion = (props) => {
     )
 }
 
-export default FormQuestion
+export default FormQuestion;

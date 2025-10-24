@@ -30,9 +30,9 @@ const Header = (props) => {
                         <Dialog>
                             <DialogTrigger asChild>
                                 <button
-                                    className={`${responseLink ? 'bg-green-600 hover:bg-green-700' : 'bg-violet-800 hover:bg-violet-600'}
+                                    className={`${responseLink ? 'bg-white border text-violet-800 border-violet-800 hover:bg-violet-100' : 'bg-violet-800 hover:bg-violet-600'}
                                     rounded-md font-semibold
-                                    px-6 py-2 mx-2 text-xs text-white`}>
+                                    px-6 py-2 mx-2 text-xs `}>
                                     {responseLink ? 'Published' : 'Publish'}
                                 </button>
                             </DialogTrigger>

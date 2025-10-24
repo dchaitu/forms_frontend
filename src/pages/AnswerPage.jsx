@@ -15,6 +15,7 @@ const AnswerPage = () => {
                 const resp = await fetch(`${API_BASE_URL}/form/by_uuid/${unique_id}`);
                 if (resp.ok) {
                     const data = await resp.json();
+                    console.log("Answer page form data ", data);
                     setFormData(data);
                 } else {
                     console.error('Failed to fetch form');
@@ -40,8 +41,10 @@ const AnswerPage = () => {
                 {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ response_data: responses }),
+                    body: JSON.stringify(responses),
                 });
+            const data = await resp.json();
+            console.log("Response data ",data);
             if (resp.ok) {
                 alert('Responses submitted successfully!');
             } else {
@@ -63,9 +66,11 @@ const AnswerPage = () => {
                 <p className="text-gray-600 mb-8">{formData.description}</p>
                 <form onSubmit={handleSubmit}>
                     {formData.sections.map(section => (
-                        <div key={section.id} className="mb-8">
+                        <div key={section.id} className="flex flex-col  mb-8">
+                            <div>
                             <h2 className="text-2xl font-semibold mb-4">{section.title}</h2>
                             <p className="text-gray-500 mb-6">{section.description}</p>
+                            </div>
                             {section.questions.map(question => (
                                 <div key={question.id} className="mb-6">
                                     <FormQuestion

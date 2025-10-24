@@ -52,6 +52,40 @@ const MainPage = () => {
         }
     };
 
+    const saveQuestion = async (questionId, updatedData) => {
+        try {
+            const resp = await fetch(`${API_BASE_URL}/question/${questionId}/`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedData),
+            });
+            const data = await resp.json();
+            console.log("Updated question:", data);
+            console.log("updated Data ",updatedData)
+
+
+            if (resp.ok) {
+                setFormData(prevData => {
+                    const newData = { ...prevData };
+                    for (const section of newData.sections) {
+                        const questionIndex = section.questions.findIndex(q => q.id === questionId);
+                        if (questionIndex !== -1) {
+                            section.questions[questionIndex] = data;
+                            break;
+                        }
+                    }
+                    return newData;
+                });
+            } else {
+                console.error("Failed to save question");
+            }
+        } catch (error) {
+            console.error("Error saving question:", error);
+        }
+    };
+
     // Not implementing add/edit functionality as per the request to focus on rendering.
     const addQuestion = () => console.log("Add Question clicked");
     const addTitleAndDescription = () => console.log("Add Title and Description clicked");
@@ -117,6 +151,7 @@ const MainPage = () => {
                                                 questionData={question}
                                                 editQuestion={selectedComponent === `question_${question.id}`}
                                                 deleteQuestion={deleteQuestion}
+                                                saveQuestion={saveQuestion}
                                             />
                                         </div>
                                     ))}
