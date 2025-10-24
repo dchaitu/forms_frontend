@@ -1,12 +1,26 @@
 import {ChevronDownIcon} from "lucide-react";
 import SettingOptions from "@/components/settingOptions";
 import Header from "@/constants/header";
+import {useEffect, useState} from "react";
+import {API_BASE_URL} from "@/constants/constants";
+import {useParams} from "react-router-dom";
 
 const SettingsPage = () => {
+    const {formId} = useParams();
+    const [formData, setFormData] = useState(null);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const resp = await fetch(`${API_BASE_URL}/form/${formId}/complete/`);
+            const data = await resp.json();
+            setFormData(data);
+        }
+        fetchData();
+    }, [formId]);
 
     return (
         <div id="settingsPage">
-            <Header/>
+            <Header formId={formId} responseLink={formData?.response_link}/>
 
         <div className="bg-violet-100 h-screen place-content-center justify-items-center">
             <div className="bg-white rounded-lg m-4 w-3/4 border-4">

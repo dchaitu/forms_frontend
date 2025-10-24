@@ -4,6 +4,8 @@ import { NavLink } from 'react-router-dom';
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {Dialog, DialogTrigger} from "@/components/ui/dialog";
 import PublishDialog from "@/constants/publishDialog";
+import IconHover from "@/constants/iconHover";
+import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
 
 const Header = (props) => {
     const {formId, responseLink} = props;
@@ -20,9 +22,26 @@ const Header = (props) => {
                 <div className="flex flex-1 justify-between items-center">
                     <div className="flex flex-row w-10 p-2 m-2">
                         <img src="/images/forms_logo.png" alt="forms_logo"/>
-                        <div className="self-center mx-2">
-                            <h1>Forms</h1>
-                        </div>
+
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <div className="self-center mx-2 cursor-pointer">
+                                    <h1>Forms</h1>
+                                </div>
+                            </DropdownMenuTrigger>
+                                <DropdownMenuContent  className="bg-white">
+                                <DropdownMenuItem>
+                                    <NavLink to="/">Create New Form</NavLink>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    <NavLink to="/responses">Responses</NavLink>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    <NavLink to="/settings">Settings</NavLink>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+
                     </div>
 
                     <div className="flex justify-end items-center">

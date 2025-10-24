@@ -114,8 +114,9 @@ const FormQuestion = (props) => {
                             type="text"
                             value={response || ''}
                             onChange={(e) => onAnswerChange(e.target.value)}
-                            className="w-1/2 p-2 border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none"
+                            className="p-2 border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none"
                             placeholder="Your answer"
+                            maxLength={25}
                         />
                     );
                 case QuestionType.PARAGRAPH:

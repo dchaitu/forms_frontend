@@ -11,7 +11,7 @@ import {useState} from "react";
 import {API_BASE_URL} from "@/constants/constants";
 
 const PublishDialog = ({ formId, responseLink }) => {
-    const [link, setLink] = useState(responseLink || '');
+    const [link, setLink] = useState(responseLink ? window.location.origin + responseLink : '');
     const [isPublishing, setIsPublishing] = useState(false);
 
     const handlePublish = async (e) => {
@@ -25,7 +25,7 @@ const PublishDialog = ({ formId, responseLink }) => {
             if (response.ok) {
                 const data = await response.json();
                 console.log("Publish data ",data);
-                setLink(data.link);
+                setLink(window.location.origin + data.link);
             } else {
                 console.error('Failed to publish form');
             }

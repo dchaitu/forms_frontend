@@ -5,6 +5,7 @@ import AddElementsTray from "@/components/addElementsTray";
 import FormTitleAndDescription from "@/components/formTitleAndDescription";
 import Header from "@/constants/header";
 import {API_BASE_URL} from "@/constants/constants";
+import {Spinner} from "@/components/ui/spinner";
 
 const MainPage = () => {
     const [selectedComponent, setSelectedComponent] = useState(null);
@@ -86,10 +87,12 @@ const MainPage = () => {
         }
     };
 
-    // Not implementing add/edit functionality as per the request to focus on rendering.
     const addQuestion = () => console.log("Add Question clicked");
     const addTitleAndDescription = () => console.log("Add Title and Description clicked");
-
+    const addSection = () => console.log("Add Section clicked");
+    const addImage = () => console.log("Add Image clicked");
+    const addVideo = () => console.log("Add Video clicked");
+    const addImportQuestions = () => console.log("Add Import Questions clicked");
 
     useEffect(() => {
         const selectedRef = componentRefs.current.get(selectedComponent);
@@ -107,7 +110,7 @@ const MainPage = () => {
     }, [selectedComponent]);
 
     if (!formData) {
-        return <div>Loading...</div>; // Or some other loading state
+        return <div><Spinner className="size-4 animate-spin"/></div>; // Or some other loading state
     }
 
     return (
@@ -160,7 +163,12 @@ const MainPage = () => {
                         </div>
                         {selectedComponent &&
                             <div style={trayStyle}>
-                                <AddElementsTray addQuestion={addQuestion} addTitleAndDescription={addTitleAndDescription}/>
+                                <AddElementsTray addQuestion={addQuestion}
+                                                 addTitleAndDescription={addTitleAndDescription}
+                                                 addSection={addSection}
+                                                 addImage={addImage}
+                                                 addVideo={addVideo}
+                                                 addImportQuestions={addImportQuestions}/>
                             </div>
                         }
                     </div>

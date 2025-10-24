@@ -9,6 +9,7 @@ const ResponsesPage = () => {
     const {formId} = useParams();
     const noResponses = "No responses. Publish your form to start accepting responses."
     const [responseCount, setResponseCount] = useState(0);
+    const [formData, setFormData] = useState(null);
 
 
     useEffect(() => {
@@ -19,6 +20,15 @@ const ResponsesPage = () => {
         };
         getResponseCount();
     }, [formId])
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const resp = await fetch(`${API_BASE_URL}/form/${formId}/complete/`);
+            const data = await resp.json();
+            setFormData(data);
+        }
+        fetchData();
+    }, [formId]);
 
     const getResponseData = async () => {
         const resp = await fetch(`${API_BASE_URL}/response/${formId}/csv`);
@@ -34,7 +44,7 @@ const ResponsesPage = () => {
 
     return (
         <div id="responsesPage">
-            <Header/>
+            <Header formId={formId} responseLink={formData?.response_link}/>
 
 
         <div className="bg-violet-100 h-screen place-content-center justify-items-center">
