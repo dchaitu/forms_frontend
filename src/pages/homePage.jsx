@@ -31,8 +31,11 @@ const HomePage = () => {
                 body: JSON.stringify({ title: "Untitled Form", description: "Form Description" }),
             });
             if (!resp.ok) throw new Error("Failed to create form");
-            const newForm = await resp.json();
-            navigate(`/form/${newForm.id}`);
+            const data = await resp.json();
+            setTimeout(()=>{
+                navigate(`/${data.id}`);
+
+            },500);
         } catch (err) {
             console.error("Error creating new form:", err);
         }
@@ -54,7 +57,7 @@ const HomePage = () => {
                     onClick={handleCreateNewForm}
                     className="bg-violet-800 hover:bg-violet-600 rounded-md font-semibold px-6 py-2 text-white text-sm"
                 >
-                    + New Form
+                    Create New Form
                 </button>
             </div>
 

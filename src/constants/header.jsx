@@ -32,7 +32,7 @@ const Header = (props) => {
      const data = await resp.json();
      console.log("Created new form: ",data);
      setTimeout(()=>{
-         navigate(`/form/${data.id}`);
+         navigate(`/${data.id}`);
 
      },500);
      if(!resp.ok) {
@@ -78,7 +78,7 @@ const Header = (props) => {
                         <Dialog>
                             <DialogTrigger asChild>
                                 <button
-                                    className={`${responseLink ? 'bg-white border text-violet-800 border-violet-800 hover:bg-violet-100' : 'bg-violet-800 hover:bg-violet-600'}
+                                    className={`${responseLink ? 'bg-white border text-violet-800 border-violet-800 hover:bg-violet-100' : 'bg-violet-800 text-white hover:bg-violet-600'}
                                     rounded-md font-semibold
                                     px-6 py-2 mx-2 text-xs `}>
                                     {responseLink ? 'Published' : 'Publish'}
