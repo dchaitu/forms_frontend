@@ -1,11 +1,11 @@
 import HeaderIcons from "@/constants/headerIcons";
 import FormActionsDropdown from "@/constants/formActionsDropdown";
-import { NavLink } from 'react-router-dom';
+import {NavLink, useNavigate} from 'react-router-dom';
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {Dialog, DialogTrigger} from "@/components/ui/dialog";
 import PublishDialog from "@/constants/publishDialog";
-import IconHover from "@/constants/iconHover";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
+import {API_BASE_URL} from "@/constants/constants";
 
 const Header = (props) => {
     const {formId, responseLink} = props;
@@ -14,6 +14,35 @@ const Header = (props) => {
         const activeStyle = "text-violet-800 border-b-2 border-violet-800 px-4 py-2 text-sm font-medium"
         const inactiveStyle = "text-gray-500 hover:text-violet-800 px-4 py-2 text-sm font-medium"
         return  isActive ? activeStyle: inactiveStyle;
+    }
+
+    const navigate = useNavigate();
+    const handleCreateNewForm = async () => {
+     try{
+        const resp =   await fetch(`${API_BASE_URL}/form/create`, {
+         method: "POST",
+         headers: {
+             "Content-Type": "application/json",
+         },
+         body: JSON.stringify({
+             title: "New Form",
+             description: "New Form Description",
+         }),
+     });
+     const data = await resp.json();
+     console.log("Created new form: ",data);
+     setTimeout(()=>{
+         navigate(`/form/${data.id}`);
+
+     },500);
+     if(!resp.ok) {
+         throw new Error("Failed to create form");
+     }
+     }
+     catch (error) {
+         console.error("Error creating form: ", error);
+     }
+
     }
 
     return (
@@ -30,8 +59,8 @@ const Header = (props) => {
                                 </div>
                             </DropdownMenuTrigger>
                                 <DropdownMenuContent  className="bg-white">
-                                <DropdownMenuItem>
-                                    <NavLink to="/">Create New Form</NavLink>
+                                <DropdownMenuItem onSelect={handleCreateNewForm}>
+                                    Create New Form
                                 </DropdownMenuItem>
                                 <DropdownMenuItem>
                                     <NavLink to="/responses">Responses</NavLink>
