@@ -8,6 +8,8 @@ const AnswerPage = () => {
     const [formData, setFormData] = useState(null);
     const [responses, setResponses] = useState({});
 
+    const [submissionStatus, setSubmissionStatus] = useState(null);
+
     useEffect(() => {
         const fetchForm = async () => {
             try {
@@ -44,10 +46,10 @@ const AnswerPage = () => {
                     body: JSON.stringify(responses),
                 });
             const data = await resp.json();
-            console.log("Response data ",data);
             if (resp.ok) {
-                alert('Responses submitted successfully!');
+                setSubmissionStatus('success');
             } else {
+                setSubmissionStatus('error');
                 console.error('Failed to submit responses');
             }
         } catch (error) {
@@ -64,6 +66,8 @@ const AnswerPage = () => {
             <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md">
                 <h1 className="text-3xl font-bold mb-4">{formData.title}</h1>
                 <p className="text-gray-600 mb-8">{formData.description}</p>
+                {submissionStatus === 'success' && <p className="text-green-500">Responses submitted successfully!</p>}
+                {submissionStatus === 'error' && <p className="text-red-500">Failed to submit responses. Please try again.</p>}
                 <form onSubmit={handleSubmit}>
                     {formData.sections.map(section => (
                         <div key={section.id} className="flex flex-col  mb-8">

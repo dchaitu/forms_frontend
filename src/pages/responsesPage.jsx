@@ -14,32 +14,46 @@ const ResponsesPage = () => {
 
     useEffect(() => {
         const getResponseCount = async () => {
-            const resp = await fetch(`${API_BASE_URL}/response/${formId}/count/`);
-            const data = await resp.json();
-            setResponseCount(data.count);
+            try {
+                const resp = await fetch(`${API_BASE_URL}/response/${formId}/count/`);
+                const data = await resp.json();
+                setResponseCount(data.count);
+            } catch (error) {
+                console.error("Error fetching response count:", error);
+            }
         };
         getResponseCount();
     }, [formId])
 
     useEffect(() => {
         const fetchData = async () => {
-            const resp = await fetch(`${API_BASE_URL}/form/${formId}/complete/`);
-            const data = await resp.json();
-            setFormData(data);
+            try {
+                const resp = await fetch(`${API_BASE_URL}/form/${formId}/complete/`);
+                const data = await resp.json();
+                setFormData(data);
+            } catch (error) {
+                console.error("Error fetching form data:", error);
+            }
         }
         fetchData();
     }, [formId]);
 
     const getResponseData = async () => {
-        const resp = await fetch(`${API_BASE_URL}/response/${formId}/csv`);
-        const data = await resp.blob();
-        console.log(data);
-        const url = window.URL.createObjectURL(new Blob([data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', 'responses.csv');
-        document.body.appendChild(link);
-        link.click();
+        try {
+            const resp = await fetch(`${API_BASE_URL}/response/${formId}/csv`);
+            if (!resp.ok) {
+                throw new Error(`HTTP error! status: ${resp.status}`);
+            }
+            const data = await resp.blob();
+            const url = window.URL.createObjectURL(new Blob([data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'responses.csv');
+            document.body.appendChild(link);
+            link.click();
+        } catch (error) {
+            console.error("Error fetching response data:", error);
+        }
     }
 
     return (
@@ -60,8 +74,7 @@ const ResponsesPage = () => {
             </div>
             <div className="bg-white rounded-lg m-4 w-3/4 border-4">
                 <div className="flex flex-col items-start  space-y-4 p-8">
-                    <p className="text-gray-500 text-sm justify-self-center">{noResponses}</p>
-                    <button onClick={getResponseData} className="bg-violet-800 hover:bg-violet-600 rounded-md font-semibold px-6 py-2 mx-2 text-xs text-white">Get Responses JSON</button>
+                    <button onClick={getResponseData} className="bg-violet-800 hover:bg-violet-600 rounded-md font-semibold px-6 py-2 mx-2 text-xs text-white">Get Responses CSV</button>
                 </div>
             </div>
         </div>

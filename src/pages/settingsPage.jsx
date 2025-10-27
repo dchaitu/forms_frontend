@@ -11,9 +11,13 @@ const SettingsPage = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            const resp = await fetch(`${API_BASE_URL}/form/${formId}/complete/`);
-            const data = await resp.json();
-            setFormData(data);
+            try {
+                const resp = await fetch(`${API_BASE_URL}/form/${formId}/complete/`);
+                const data = await resp.json();
+                setFormData(data);
+            } catch (error) {
+                console.error("Error fetching form data:", error);
+            }
         }
         fetchData();
     }, [formId]);
