@@ -127,6 +127,7 @@ const FormEditor = ({initialFormData, formId}) => {
             });
             const newSection = await resp.json();
             if (resp.ok) {
+                const safeSection = { ...newSection, questions: [] };
                 setFormData(prevData => {
                     let currentSectionIndex = -1;
 
@@ -140,9 +141,9 @@ const FormEditor = ({initialFormData, formId}) => {
 
                     const newSections = [...prevData.sections];
                     if (currentSectionIndex !== -1) {
-                        newSections.splice(currentSectionIndex + 1, 0, newSection);
+                        newSections.splice(currentSectionIndex + 1, 0, safeSection);
                     } else {
-                        newSections.push(newSection);
+                        newSections.push(safeSection);
                     }
 
                     return {
@@ -189,7 +190,7 @@ const FormEditor = ({initialFormData, formId}) => {
                             onSave={handleSaveFormInfo}
                         />
                     </div>
-                    {formData.sections.map((section) => (
+                    {formData.sections?.map((section) => (
                         <div key={section.id}>
                             <div
                                 className="my-2"
@@ -204,7 +205,7 @@ const FormEditor = ({initialFormData, formId}) => {
                                     isSelected={selectedComponent === `section_${section.id}`}
                                 />
                             </div>
-                            {section.questions.map(question => (
+                            {section.questions?.map(question => (
                                 <div
                                     className="my-2"
                                     key={question.id}
