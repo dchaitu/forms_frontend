@@ -12,11 +12,10 @@ import {
 import {API_BASE_URL} from "@/constants/constants";
 
 const FormTitleAndDescription = (props) => {
-    const {editTitleAndDescription, title: initialTitle, description: initialDescription} = props;
+    const {editTitleAndDescription, title: initialTitle, description: initialDescription, onSave} = props;
     const [title, setTitle] = useState(initialTitle || "Title");
     const [description, setDescription] = useState(initialDescription || "Description (optional)")
     const [showDescription, setShowDescription] = useState(!!initialDescription);
-    const [formId, setFormId] = useState(null);
     const menuOptions = [
         {
             label: "Description",
@@ -25,41 +24,6 @@ const FormTitleAndDescription = (props) => {
         }
     ];
 
-    useEffect(() => {
-        if (initialTitle) setTitle(initialTitle);
-        if (initialDescription) {
-            setDescription(initialDescription);
-            if (initialDescription) setShowDescription(true);
-        }
-    }, [initialTitle, initialDescription]);
-    
-    const saveTitleAndDescription = async () => {
-        try {
-            const isUpdate = !!formId;
-            const url = `${API_BASE_URL}/form/create/`;
-            const method = isUpdate ? 'PUT' : 'POST';
-
-            const resp = await fetch(url,
-                {
-                    method: method,
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        title: title,
-                        description: description,
-                    }),
-                })
-            const response = await resp.json();
-            console.log(response);
-            if (!isUpdate && response.id) {
-                setFormId(response.id);
-            }
-        }
-        catch (error) {
-            console.error('Error saving form header:', error);
-        }
-    }
 
     return (
         <div
@@ -89,7 +53,7 @@ const FormTitleAndDescription = (props) => {
 
                         <div className="flex flex-row">
                             <div>
-                                <button onClick={saveTitleAndDescription}
+                                <button onClick={() => onSave({title, description})}
                                         className="bg-blue-500 text-white px-4 py-1 rounded"
                                 >
                                     Save

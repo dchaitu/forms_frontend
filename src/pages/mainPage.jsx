@@ -23,7 +23,6 @@ const MainPage = () => {
                         return;
                     }
                     const data = await resp.json();
-                    console.log("formData", data);
                     setFormData(data);
                 } catch (error) {
                     console.error("Error fetching form data:", error);
@@ -39,7 +38,7 @@ const MainPage = () => {
     }, [formId, navigate]);
 
     const handleFormCreate = (newForm) => {
-        navigate(`/form/${newForm.id}`);
+        navigate(`/${newForm.id}`);
     };
 
     if (loading) {
@@ -54,7 +53,7 @@ const MainPage = () => {
         return (
             <div id="createFormPage">
                 <div className="bg-violet-100 min-h-screen px-10 py-4">
-                    <FormHeader onFormCreate={handleFormCreate} />
+                    <FormHeader onSave={handleFormCreate} />
                 </div>
             </div>
         );

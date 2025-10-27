@@ -7,37 +7,48 @@ import {API_BASE_URL} from "@/constants/constants";
 
 
 const FormSection = (props) => {
-    const {isSelected, formId: initialFormId, title, description} = props;
+    const {isSelected, formId, title, description, sectionId: initialSectionId} = props;
     const [sectionName, setSectionName] = useState(title || "Untitled Section");
-    const [sectionDescription, setSectionDescription] = useState(description || "Section Description");
+    const [sectionDescription, setSectionDescription] = useState(description);
     // const [formId, setFormId] = useState(initialFormId);
-    const [sectionId, setSectionId] = useState(initialFormId);
+
+    const [sectionId, setSectionId] = useState(initialSectionId);
+    const placeholderSectionDescription = "Section Description";
     useEffect(() => {
         if (title) setSectionName(title);
         if (description) setSectionDescription(description);
-    }, [title, description]);
+        if(initialSectionId) setSectionId(initialSectionId)
+    }, [title, description, initialSectionId]);
 
     const ref = useRef();
 
     const saveFormSection = async () => {
         try {
             const isUpdate = !!sectionId;
-            const url = isUpdate ? `${API_BASE_URL}/section/${sectionId}/` : `${API_BASE_URL}/form/create/`;
+            console.log("Current section id is ", sectionId)
+            console.log("isUpdate ", isUpdate)
+            const url = isUpdate ? `${API_BASE_URL}/section/` : `${API_BASE_URL}/section/create/`;
             const method = isUpdate ? 'PUT' : 'POST';
-
+            const updateBody = {
+                title: sectionName,
+                description: sectionDescription,
+                section_id: parseInt(sectionId),
+            }
+            const createBody = {
+                title: sectionName,
+                description: sectionDescription,
+                form_id: parseInt(formId),
+            }
+            const responseBody = isUpdate? updateBody : createBody;
             const resp = await fetch(url,
                 {
                     method: method,
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        title: sectionName,
-                        description: sectionDescription,
-                    }),
+                    body: JSON.stringify(responseBody),
                 })
             const response = await resp.json();
-            console.log(response);
             if (!isUpdate && response.id) {
                 setSectionId(response.id);
             }
@@ -48,12 +59,7 @@ const FormSection = (props) => {
 
     }
 
-    // useOnClickOutside(ref, () => {
-    //     if (isSelected) {
-    //         console.log('Saving form header data:', { headerName, headerDescription });
-    //         saveFormHeader();
-    //     }
-    // });
+
 
     return (
 
@@ -61,7 +67,7 @@ const FormSection = (props) => {
         <div className="flex flex-row p-5 bg-white rounded my-2 focus:outline-none border-t-8 border-t-[rgb(103,58,183)] border-l-4 focus:border-l-[#4285f4] border-r-0 border-b-0" tabIndex="0">
             <div className="flex flex-col">
                 <input placeholder="Untitled Form" value={sectionName} onChange={(e) => setSectionName(e.target.value)} className="rounded py-1 text-3xl"/>
-                <input placeholder={sectionDescription} value={sectionDescription} onChange={(e) => setSectionDescription(e.target.value)}/>
+                <input placeholder={placeholderSectionDescription} value={sectionDescription} onChange={(e) => setSectionDescription(e.target.value)}/>
             </div>
             {isSelected &&(
                 <div className="flex items-start ml-auto">

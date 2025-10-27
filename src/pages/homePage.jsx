@@ -16,6 +16,7 @@ const HomePage = () => {
                 setForms(data);
             } catch (err) {
                 console.error("Error fetching forms:", err);
+                // Optionally, set an error state to display a message to the user
             } finally {
                 setLoading(false);
             }
@@ -32,12 +33,10 @@ const HomePage = () => {
             });
             if (!resp.ok) throw new Error("Failed to create form");
             const data = await resp.json();
-            setTimeout(()=>{
-                navigate(`/${data.id}`);
-
-            },500);
+            navigate(`/${data.id}`);
         } catch (err) {
             console.error("Error creating new form:", err);
+            // Optionally, set an error state to display a message to the user
         }
     };
 

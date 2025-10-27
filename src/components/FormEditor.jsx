@@ -2,7 +2,7 @@ import FormSection from "@/components/formSection";
 import FormQuestion from "@/components/formQuestion";
 import {useState, useRef, useEffect} from "react";
 import AddElementsTray from "@/components/addElementsTray";
-import FormTitleAndDescription from "@/components/formTitleAndDescription";
+import FormHeader from "@/components/FormHeader";
 import {API_BASE_URL} from "@/constants/constants";
 import { QuestionType } from "@/constants/questionType";
 
@@ -18,31 +18,13 @@ const FormEditor = ({initialFormData, formId}) => {
         setFormData(initialFormData);
     }, [initialFormData]);
 
-    // const addTitleAndDescription = async (updatedData) => {
-    //     try {
-    //         const resp = await fetch(`${API_BASE_URL}/form/${formId}/`, {
-    //             method: 'PUT',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //             },
-    //             body: JSON.stringify(updatedData),
-    //         });
-    //         const data = await resp.json();
-    //         console.log("Updated form:", data);
-    //
-    //         if (resp.ok) {
-    //             setFormData(prevData => ({
-    //                 ...prevData,
-    //                 title: data.title,
-    //                 description: data.description,
-    //             }));
-    //         } else {
-    //             console.error("Failed to save form title and description");
-    //         }
-    //     } catch (error) {
-    //         console.error("Error saving form title and description:", error);
-    //     }
-    // };
+    const handleSaveFormInfo = (updatedData) => {
+        setFormData(prevData => ({
+            ...prevData,
+            title: updatedData.title,
+            description: updatedData.description,
+        }));
+    };
 
     const deleteQuestion = async (questionId) => {
         try {
@@ -91,55 +73,41 @@ const FormEditor = ({initialFormData, formId}) => {
         }
     };
 
-    const addQuestion = () => {
+    const addQuestion = async () => {
         if (!selectedComponent) return;
 
-        const newQuestion = {
-            id: Date.now(),
-            text: "New Question",
+        const sectionId = selectedComponent.startsWith('section_')
+            ? parseInt(selectedComponent.split('_')[1])
+            : selectedComponent.startsWith('question_')
+                ? formData.sections.find(s => s.questions.some(q => q.id === parseInt(selectedComponent.split('_')[1]))).id
+                : formData.sections[0].id;
+
+        const questionInfo = {
             question_type: QuestionType.TEXT,
             options: [],
-        };
+            section_id: sectionId,
+            title: "New Question",
+            description: "New Question Description",
+            is_required: false,
+        }
+        console.log("questionInfo ",questionInfo);
+        const resp = await fetch(`${API_BASE_URL}/question/create/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(questionInfo),
+        });
+        const data = await resp.json();
 
         setFormData(prevData => {
-            let newSections;
-
-            if (selectedComponent.startsWith('question_')) {
-                const questionId = parseInt(selectedComponent.split('_')[1]);
-                let questionAdded = false;
-                newSections = prevData.sections.map(section => {
-                    if (questionAdded) return section;
-                    const questionIndex = section.questions.findIndex(q => q.id === questionId);
-                    if (questionIndex !== -1) {
-                        questionAdded = true;
-                        const newQuestions = [...section.questions];
-                        newQuestions.splice(questionIndex + 1, 0, newQuestion);
-                        return { ...section, questions: newQuestions };
-                    }
-                    return section;
-                });
-            } else if (selectedComponent.startsWith('section_')) {
-                const sectionId = parseInt(selectedComponent.split('_')[1]);
-                newSections = prevData.sections.map(section => {
-                    if (section.id === sectionId) {
-                        return { ...section, questions: [...section.questions, newQuestion] };
-                    }
-                    return section;
-                });
-            } else if (selectedComponent === 'header') {
-                if (prevData.sections.length > 0) {
-                    newSections = prevData.sections.map((section, index) => {
-                        if (index === 0) {
-                            return { ...section, questions: [...section.questions, newQuestion] };
-                        }
-                        return section;
-                    });
-                } else {
-                    newSections = prevData.sections;
+            const newSections = prevData.sections.map(section => {
+                if (section.id === sectionId) {
+                    const newQuestions = [...section.questions, data];
+                    return { ...section, questions: newQuestions };
                 }
-            } else {
-                newSections = prevData.sections;
-            }
+                return section;
+            });
 
             return {
                 ...prevData,
@@ -148,37 +116,46 @@ const FormEditor = ({initialFormData, formId}) => {
         });
     };
 
-    const addSection = () => {
-        const newSection = {
-            id: Date.now(),
-            title: "New Section",
-            description: "",
-            questions: []
-        };
+    const addSection = async () => {
+        try {
+            const resp = await fetch(`${API_BASE_URL}/section/create/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ title: "New Section", description: "", form_id: formId, questions: [] }),
+            });
+            const newSection = await resp.json();
+            if (resp.ok) {
+                setFormData(prevData => {
+                    let currentSectionIndex = -1;
 
-        setFormData(prevData => {
-            let currentSectionIndex = -1;
+                    if (selectedComponent && selectedComponent.startsWith('question_')) {
+                        const questionId = parseInt(selectedComponent.split('_')[1]);
+                        currentSectionIndex = prevData.sections.findIndex(s => s.questions.some(q => q.id === questionId));
+                    } else if (selectedComponent && selectedComponent.startsWith('section_')) {
+                        const sectionId = parseInt(selectedComponent.split('_')[1]);
+                        currentSectionIndex = prevData.sections.findIndex(s => s.id === sectionId);
+                    }
 
-            if (selectedComponent && selectedComponent.startsWith('question_')) {
-                const questionId = parseInt(selectedComponent.split('_')[1]);
-                currentSectionIndex = prevData.sections.findIndex(s => s.questions.some(q => q.id === questionId));
-            } else if (selectedComponent && selectedComponent.startsWith('section_')) {
-                const sectionId = parseInt(selectedComponent.split('_')[1]);
-                currentSectionIndex = prevData.sections.findIndex(s => s.id === sectionId);
-            }
+                    const newSections = [...prevData.sections];
+                    if (currentSectionIndex !== -1) {
+                        newSections.splice(currentSectionIndex + 1, 0, newSection);
+                    } else {
+                        newSections.push(newSection);
+                    }
 
-            const newSections = [...prevData.sections];
-            if (currentSectionIndex !== -1) {
-                newSections.splice(currentSectionIndex + 1, 0, newSection);
+                    return {
+                        ...prevData,
+                        sections: newSections,
+                    };
+                });
             } else {
-                newSections.push(newSection);
+                console.error("Failed to add section");
             }
-
-            return {
-                ...prevData,
-                sections: newSections,
-            };
-        });
+        } catch (error) {
+            console.error("Error adding section:", error);
+        }
     };
 
 
@@ -205,11 +182,11 @@ const FormEditor = ({initialFormData, formId}) => {
                         ref={el => componentRefs.current.set('header', el)}
                         onClick={() => setSelectedComponent('header')}
                     >
-                       <FormTitleAndDescription
-                            editTitleAndDescription={selectedComponent === 'header'}
-                            title={formData.title}
-                            description={formData.description}
-                            // addTitleAndDescription={addTitleAndDescription}
+                       <FormHeader
+                            formId={formId}
+                            initialTitle={formData.title}
+                            initialDescription={formData.description}
+                            onSave={handleSaveFormInfo}
                         />
                     </div>
                     {formData.sections.map((section) => (
@@ -220,8 +197,10 @@ const FormEditor = ({initialFormData, formId}) => {
                                 onClick={() => setSelectedComponent(`section_${section.id}`)}
                             >
                                 <FormSection
+                                    sectionId={section.id}
                                     title={section.title}
                                     description={section.description}
+                                    formId={formId}
                                     isSelected={selectedComponent === `section_${section.id}`}
                                 />
                             </div>
