@@ -5,14 +5,14 @@ import TextOption from "./questionTypes/TextOption";
 import ParagraphOption from "./questionTypes/ParagraphOption";
 import { QuestionType } from "@/constants/questionType";
 
-const QuestionOptions = ({ selectedQuestionType, editQuestion, options, setOptions, handleOptionChange, addOption, removeOption }) => {
+const QuestionOptions = ({ selectedQuestionType, editQuestion, options, setOptions, handleOptionChange, addOption, removeOption, handleOptionImageUpload }) => {
     switch (selectedQuestionType) {
         case QuestionType.MULTIPLE_CHOICE:
-            return <MultipleChoiceOptions edit={editQuestion} options={options} handleOptionChange={handleOptionChange} addOption={addOption} removeOption={removeOption} />;
+            return <MultipleChoiceOptions edit={editQuestion} options={options} handleOptionChange={handleOptionChange} addOption={addOption} removeOption={removeOption} handleOptionImageUpload={handleOptionImageUpload} />;
         case QuestionType.CHECKBOXES:
-            return <CheckboxOptions edit={editQuestion} options={options} handleOptionChange={handleOptionChange} addOption={addOption} removeOption={removeOption} />;
+            return <CheckboxOptions edit={editQuestion} options={options} handleOptionChange={handleOptionChange} addOption={addOption} removeOption={removeOption} handleOptionImageUpload={handleOptionImageUpload} />;
         case QuestionType.DROPDOWN:
-            return <DropdownOptions edit={editQuestion} options={options} handleOptionChange={handleOptionChange} addOption={addOption} removeOption={removeOption} />;
+            return <DropdownOptions edit={editQuestion} options={options} handleOptionChange={handleOptionChange} addOption={addOption} removeOption={removeOption} handleOptionImageUpload={handleOptionImageUpload} />;
         case QuestionType.TEXT:
             return <TextOption />;
         case QuestionType.PARAGRAPH:

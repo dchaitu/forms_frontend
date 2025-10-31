@@ -1,27 +1,42 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import { API_BASE_URL } from "@/constants/constants";
 import { Spinner } from "@/components/ui/spinner";
 
-const HomePage = () => {
+const UserHomePage = () => {
     const [forms, setForms] = useState([]);
+    const [formCounts, setFormCounts] = useState({});
     const [loading, setLoading] = useState(true);
+    const {userId} = useParams();
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchForms = async () => {
+        const fetchData = async () => {
             try {
-                const resp = await fetch(`${API_BASE_URL}/form/all/`);
-                const data = await resp.json();
-                setForms(data);
+                // Fetch forms and response counts in parallel
+                const [formsResp, countsResp] = await Promise.all([
+                    fetch(`${API_BASE_URL}/form/${userId}/all/`),
+                    fetch(`${API_BASE_URL}/response/count/`)
+                ]);
+
+                const formsData = await formsResp.json();
+                const countsData = await countsResp.json();
+
+                // Convert count list into a dictionary {formId: count}
+                const countsMap = countsData.reduce((acc, item) => {
+                    acc[item.form_id] = item.count;
+                    return acc;
+                }, {});
+
+                setForms(formsData);
+                setFormCounts(countsMap);
             } catch (err) {
-                console.error("Error fetching forms:", err);
-                // Optionally, set an error state to display a message to the user
+                console.error("Error fetching forms or counts:", err);
             } finally {
                 setLoading(false);
             }
         };
-        fetchForms();
+        fetchData();
     }, []);
 
     const handleCreateNewForm = async () => {
@@ -36,7 +51,6 @@ const HomePage = () => {
             navigate(`/${data.id}`);
         } catch (err) {
             console.error("Error creating new form:", err);
-            // Optionally, set an error state to display a message to the user
         }
     };
 
@@ -56,7 +70,7 @@ const HomePage = () => {
                     onClick={handleCreateNewForm}
                     className="bg-violet-800 hover:bg-violet-600 rounded-md font-semibold px-6 py-2 text-white text-sm"
                 >
-                    Create New Form
+                    + New Form
                 </button>
             </div>
 
@@ -72,6 +86,11 @@ const HomePage = () => {
                         >
                             <h2 className="text-lg font-semibold mb-2">{form.title}</h2>
                             <p className="text-sm text-gray-500">{form.description}</p>
+                            <p className="text-sm text-gray-600 mt-4">
+                                {formCounts[form.id]
+                                    ? `${formCounts[form.id]} ${formCounts[form.id] === 1 ? "response" : "responses"}`
+                                    : "No responses yet"}
+                            </p>
                         </div>
                     ))}
                 </div>
@@ -80,4 +99,4 @@ const HomePage = () => {
     );
 };
 
-export default HomePage;
+export default UserHomePage;
