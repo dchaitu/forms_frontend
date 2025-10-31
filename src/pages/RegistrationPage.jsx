@@ -5,7 +5,9 @@ import { API_BASE_URL } from '../constants/constants';
 const RegistrationPage = () => {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
+    const [fullName, setFullName] = useState('');
     const [password, setPassword] = useState('');
+    const [picUrl, setPicUrl] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
@@ -16,12 +18,16 @@ const RegistrationPage = () => {
         setError(null);
 
         try {
-            const response = await fetch(`${API_BASE_URL}/register/`, {
+            const response = await fetch(`${API_BASE_URL}/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ username, email, password }),
+                body: JSON.stringify({ username,
+                    fullname: fullName,
+                    email_address: email,
+                    password,
+                    pic_url: picUrl }),
             });
 
             if (!response.ok) {
@@ -42,7 +48,7 @@ const RegistrationPage = () => {
             <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-md">
                 <h1 className="text-3xl font-bold text-center text-gray-800 mb-4">Create an Account</h1>
                 {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-                <form onSubmit={handleSignUp}>
+                <form onSubmit={handleSignUp} className="text-start">
                     <div className="mb-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
                             Username
@@ -54,6 +60,19 @@ const RegistrationPage = () => {
                             placeholder="Username"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="fullName">
+                            Full Name
+                        </label>
+                        <input
+                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            id="fullName"
+                            type="text"
+                            placeholder="Full Name"
+                            value={fullName}
+                            onChange={(e) => setFullName(e.target.value)}
                         />
                     </div>
                     <div className="mb-4">
@@ -77,9 +96,22 @@ const RegistrationPage = () => {
                             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
                             id="password"
                             type="password"
-                            placeholder="******************"
+                            placeholder="Password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                        />
+                    </div>
+                    <div className="mb-6">
+                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="picUrl">
+                            Profile Picture URL
+                        </label>
+                        <input
+                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                            id="picUrl"
+                            type="text"
+                            placeholder="Profile Picture URL"
+                            value={picUrl}
+                            onChange={(e) => setPicUrl(e.target.value)}
                         />
                     </div>
                     <div className="flex items-center justify-between">

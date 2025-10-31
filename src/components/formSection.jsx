@@ -4,6 +4,13 @@ import {BsThreeDotsVertical} from "react-icons/bs";
 import {useEffect, useRef, useState} from "react";
 // import useOnClickOutside from "@/lib/useOnClickOutside";
 import {API_BASE_URL} from "@/constants/constants";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 
 
 const FormSection = (props) => {
@@ -21,7 +28,7 @@ const FormSection = (props) => {
     }, [title, description, initialSectionId]);
 
     const ref = useRef();
-
+    const sectionOptions = ["Duplicate Section", "Move Section","Delete Section"]
     const saveFormSection = async () => {
         try {
             const isUpdate = !!sectionId;
@@ -78,8 +85,26 @@ const FormSection = (props) => {
                     </button>
                     <IconHover icon={<BiCollapseVertical
                         size={20} className="text-gray-500"/>} text="Collapse section"/>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                    <button className="ml-2 px-2  rounded-full hover:bg-gray-100 cursor-pointer">
                     <IconHover icon={<BsThreeDotsVertical size={20} className="text-gray-500"/>} text="More"/>
-                </div>
+                    </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="bg-white">
+                            <DropdownMenuGroup>
+                                {
+                                    sectionOptions.map((option, index) => (
+                                        <DropdownMenuItem key={index}>
+                                            {option}
+                                        </DropdownMenuItem>
+                                    ))
+                                }
+                            </DropdownMenuGroup>
+
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    </div>
             )}
         </div>
         </div>

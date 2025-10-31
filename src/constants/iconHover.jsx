@@ -1,9 +1,9 @@
 import {Tooltip, TooltipContent, TooltipTrigger} from "@/components/ui/tooltip";
 
 const IconHover = (props) => {
-    const {icon, text} = props
+    const {icon, text, onClick} = props
     return (
-        <div className="mx-3.5 cursor-pointer">
+        <div className="mx-3.5 cursor-pointer" onClick={onClick}>
             <Tooltip>
                 <TooltipTrigger asChild>
                     <div className="self-start">

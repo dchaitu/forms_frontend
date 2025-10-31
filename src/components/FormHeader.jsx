@@ -44,28 +44,31 @@ const FormHeader = ({ onSave, formId, initialTitle = '', initialDescription = ''
     };
 
     return (
-        <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-2xl mx-auto my-8">
-            <h2 className="text-2xl font-bold mb-4">{isEditMode ? 'Form' : 'Create a New Form'}</h2>
-            <div className="space-y-4">
-                <input
-                    type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Form Title"
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                />
-                <input
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Form Description"
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                />
-                <button
-                    onClick={handleSave}
-                    className="bg-violet-600 text-white px-4 py-2 rounded-md hover:bg-violet-700"
-                >
-                    {isEditMode ? 'Save' : 'Create Form'}
-                </button>
+        <div className="border-gray-700 min-w-[80vw]" >
+            <div className="flex flex-row p-5 bg-white rounded my-2 focus:outline-none border-t-8 border-t-[rgb(103,58,183)] border-l-4 focus:border-l-[#4285f4] border-r-0 border-b-0" tabIndex="0">
+                <div className="flex flex-col w-full">
+                    <input
+                        type="text"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder="Form Title"
+                        className="rounded py-1 text-3xl w-full"
+                    />
+                    <input
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder="Form Description"
+                        className="w-full"
+                    />
+                </div>
+                <div className="flex items-start ml-auto">
+                    <button
+                        onClick={handleSave}
+                        className="bg-blue-500 text-white px-4 py-1 rounded"
+                    >
+                        {isEditMode ? 'Save' : 'Create Form'}
+                    </button>
+                </div>
             </div>
         </div>
     );

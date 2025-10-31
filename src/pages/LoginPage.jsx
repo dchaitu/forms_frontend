@@ -17,7 +17,7 @@ const LoginPage = () => {
         setError(null);
 
         try {
-            const response = await fetch(`${API_BASE_URL}/auth/login/`, {
+            const response = await fetch(`${API_BASE_URL}/login/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -31,8 +31,10 @@ const LoginPage = () => {
             }
 
             const userData = await response.json();
+            console.log("userData ",userData);
             setUser(userData);
-            navigate('/home');
+            const userId = userData.user_id;
+            navigate(`/home`);
         } catch (error) {
             setError(error.message);
         } finally {
@@ -50,7 +52,7 @@ const LoginPage = () => {
                 <form onSubmit={handleLogin} className="text-start">
                     <div className="mb-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
-                            Email
+                            Username
                         </label>
                         <input
                             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -82,7 +84,7 @@ const LoginPage = () => {
                             Log In
                         </button>
                         <Link
-                            to="/signup"
+                            to="/register"
                             className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
                         >
                             Don't have an account?

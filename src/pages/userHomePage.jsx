@@ -1,14 +1,18 @@
 import { useEffect, useState } from "react";
-import {useNavigate, useParams} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import { API_BASE_URL } from "@/constants/constants";
 import { Spinner } from "@/components/ui/spinner";
+import {useUser} from "@/context/UserContext";
 
 const UserHomePage = () => {
     const [forms, setForms] = useState([]);
     const [formCounts, setFormCounts] = useState({});
     const [loading, setLoading] = useState(true);
-    const {userId} = useParams();
     const navigate = useNavigate();
+    const {user} = useUser();
+    console.log("user ",user);
+    const userId = user.user_id;
+    console.log("userId ",userId);
 
     useEffect(() => {
         const fetchData = async () => {

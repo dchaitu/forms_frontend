@@ -1,13 +1,16 @@
-import { MdClose } from "react-icons/md";
+import { MdClose, MdOutlineImage } from "react-icons/md";
+import IconHover from "@/constants/iconHover";
+import { useRef } from "react";
 
-const DropdownOptions = ({ edit, options, handleOptionChange, addOption, removeOption }) => {
-
+const DropdownOptions = ({ edit, options, handleOptionChange, addOption, removeOption, handleOptionImageUpload }) => {
+    const imageInputRef = useRef(null);
 
     return (
         <div>
             {options.map((opt, index) => (
                 <div key={index} className="flex items-center my-2">
                     <span className="mr-2">{index + 1}.</span>
+                    {opt.image_url && <img src={opt.image_url} alt="option" className="w-10 h-10 ml-2"/>}
                     {edit ? (
                         <input
                             type="text"
@@ -19,9 +22,18 @@ const DropdownOptions = ({ edit, options, handleOptionChange, addOption, removeO
                         <span className="ml-3">{opt.text}</span>
                     )}
                     {edit && (
-                        <button onClick={() => removeOption(index)} className="ml-2 text-gray-500 hover:text-gray-700">
-                            <MdClose />
-                        </button>
+                        <>
+                            <input
+                                type="file"
+                                ref={imageInputRef}
+                                onChange={(e) => handleOptionImageUpload(e, opt.id)}
+                                className="hidden"
+                            />
+                            <IconHover icon={<MdOutlineImage size={20} className="text-gray-500"/>} text="Add Image" onClick={() => imageInputRef.current.click()}/>
+                            <button onClick={() => removeOption(index)} className="ml-2 text-gray-500 hover:text-gray-700">
+                                <MdClose />
+                            </button>
+                        </>
                     )}
                 </div>
             ))}

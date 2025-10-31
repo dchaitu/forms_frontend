@@ -6,7 +6,7 @@ import FormEditor from "@/components/FormEditor";
 import FormHeader from "@/components/FormHeader";
 import {Spinner} from "@/components/ui/spinner";
 
-const MainPage = () => {
+const CreateFormPage = () => {
     const [formData, setFormData] = useState(null);
     const [loading, setLoading] = useState(true);
     const { formId } = useParams();
@@ -73,4 +73,4 @@ const MainPage = () => {
     return <div>Form not found or error loading form.</div>;
 };
 
-export default MainPage;
+export default CreateFormPage;

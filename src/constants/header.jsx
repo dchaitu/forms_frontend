@@ -4,18 +4,20 @@ import {NavLink, useNavigate} from 'react-router-dom';
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {Dialog, DialogTrigger} from "@/components/ui/dialog";
 import PublishDialog from "@/constants/publishDialog";
+import {useUser} from "@/context/UserContext";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
 import {API_BASE_URL} from "@/constants/constants";
 
 const Header = (props) => {
     const {formId, responseLink} = props;
+    const {user} = useUser();
 
     const getNavLinkClass = ({ isActive }) => {
         const activeStyle = "text-violet-800 border-b-2 border-violet-800 px-4 py-2 text-sm font-medium"
         const inactiveStyle = "text-gray-500 hover:text-violet-800 px-4 py-2 text-sm font-medium"
         return  isActive ? activeStyle: inactiveStyle;
     }
-
+    console.log("user Details ",user)
     const navigate = useNavigate();
     const handleCreateNewForm = async () => {
      try{
@@ -89,8 +91,8 @@ const Header = (props) => {
 
                         <FormActionsDropdown />
                         <Avatar>
-                            <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-                            <AvatarFallback>CN</AvatarFallback>
+                            <AvatarImage src={user?.pic_url} alt={user?.username || 'User'} />
+                            <AvatarFallback>{user?.username?.charAt(0) || 'U'}</AvatarFallback>
                         </Avatar>
                     </div>
                 </div>
