@@ -1,18 +1,19 @@
 import {FaRegTrashAlt} from "react-icons/fa";
 import IconHover from "@/constants/iconHover";
 import {MdContentCopy, MdOutlineImage} from "react-icons/md";
-import {useState} from "react";
+import {useRef, useState} from "react";
 import {Switch} from "@/components/ui/switch";
 import {BsThreeDotsVertical} from "react-icons/bs";
 import QuestionTypeDropdown from "@/components/questionTypeDropdown";
 import {
     DropdownMenu,
-    DropdownMenuContent, DropdownMenuGroup, DropdownMenuCheckboxItem,
+    DropdownMenuContent, DropdownMenuGroup, DropdownMenuCheckboxItem, DropdownMenuItem,
     DropdownMenuLabel, DropdownMenuSeparator,
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import {QuestionType} from "@/constants/questionType";
 import QuestionOptions from "./questionOptions";
+import {API_BASE_URL} from "@/constants/constants";
 
 const FormQuestionEdit = (props) => {
     const {editQuestion, questionData, sectionId, deleteQuestion, saveQuestion} = props;
@@ -23,6 +24,9 @@ const FormQuestionEdit = (props) => {
     const [description, setDescription] = useState(questionData?.description)
     const [options, setOptions] = useState(questionData?.options || []);
     const [questionIsRequired, setQuestionIsRequired] = useState(questionData?.is_required || false);
+    const [image, setImage] = useState(questionData?.question_image ? `data:image/png;base64,${questionData.question_image}` : null);
+    const [imageHover, setImageHover] = useState(false);
+    const imageInputRef = useRef(null);
     const gridOptions = {
         rows: ["Row 1", "Row 2"],
         columns: ["Column 1", "Column 2", "Column 3"]
@@ -57,6 +61,15 @@ const FormQuestionEdit = (props) => {
                 question_type: selectedQuestionType,
                 section_id: sectionId
             };
+            if (image) {
+                updatedQuestion.question_image = image.replace('data:image/png;base64,', '');
+            }
+
+            if (selectedQuestionType === QuestionType.LINEAR_SCALE) {
+                updatedQuestion.start_scale = selectedStartValue;
+                updatedQuestion.end_scale = selectedEndValue;
+            }
+            // TODO: Add support for start and end label
             await saveQuestion(questionData.id, updatedQuestion);
         };
     
@@ -79,13 +92,93 @@ const FormQuestionEdit = (props) => {
         ];
 
 
+    const handleImageUpload = async (event) => {
+        console.log('handleImageUpload called', event.target.files);
+
+        const file = event.target.files[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/question/upload_image/${questionData.id}`, {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log("Image upload data ",data);
+                    setImage(`data:image/png;base64,${data.question_image}`);
+                    event.target.value = '';
+                } else {
+                    console.error('Image upload failed');
+                }
+            } catch (error) {
+                console.error('Error uploading image:', error);
+            }
+        }
+    };
+
+    const handleOptionImageUpload = async (event, optionId) => {
+        const file = event.target.files[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/option/upload_image/${optionId}`, {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const newOptions = options.map(opt => {
+                        if (opt.id === optionId) {
+                            return { ...opt, image_url: `data:image/png;base64,${data.option_image}` };
+                        }
+                        return opt;
+                    });
+                    setOptions(newOptions);
+                } else {
+                    console.error('Image upload failed');
+                }
+            } catch (error) {
+                console.error('Error uploading image:', error);
+            }
+        }
+    };
+
 
 
     return (
         <div className="rounded min-w-[80vw] bg-white p-5 border border-gray-300 border-l-4 focus:border-l-[#4285f4] focus:outline-none" tabIndex="0">
             <div className="flex flex-col items-between mb-2">
                 <div className="flex flex-row justify-between items-start mb-2">
-                    <div className="flex-1">
+                    <div className={"flex-1"} onMouseEnter={() => setImageHover(true)} onMouseLeave={() => setImageHover(false)}>
+                        {image &&
+                            <div className="relative">
+                                <img src={image} alt="question" className="mb-2 cursor-pointer" onClick={() => imageInputRef.current?.click()}/>
+                                {imageHover &&
+                                    <div className="absolute top-2 left-2">
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger>
+                                                <BsThreeDotsVertical className="text-gray-500" size={20}/>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent className="bg-white">
+                                                <DropdownMenuItem onClick={() => imageInputRef.current?.click()}>
+                                                    Change
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => setImage(null)}>
+                                                    Remove
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </div>
+                                }
+                            </div>
+                        }
                         <input placeholder={question}
                             value={question}
                                onChange={(e)=> setQuestion(e.target.value)}
@@ -100,7 +193,14 @@ const FormQuestionEdit = (props) => {
                         />
                     </div>}
                     {editQuestion && <div className="flex items-center gap-2">
-                        <IconHover icon={<MdOutlineImage size={20} className="text-gray-500"/>} text="Add Inline Image"/>
+                        <input
+                            type="file"
+                            ref={imageInputRef}
+                            onChange={handleImageUpload}
+                            className="hidden"
+                            accept="image/*"
+                        />
+                        <IconHover icon={<MdOutlineImage size={20} className="text-gray-500"/>} text="Add Inline Image" onClick={() => imageInputRef.current?.click()}/>
                         <QuestionTypeDropdown selectedQuestionType={selectedQuestionType}
                                               setSelectedQuestionType={setSelectedQuestionType}/>
                     </div>}
@@ -114,6 +214,11 @@ const FormQuestionEdit = (props) => {
                 handleOptionChange={handleOptionChange}
                 addOption={addOption}
                 removeOption={removeOption}
+                handleOptionImageUpload={handleOptionImageUpload}
+                selectedStartValue={selectedStartValue}
+                setSelectedStartValue={setSelectedStartValue}
+                selectedEndValue={selectedEndValue}
+                setSelectedEndValue={setSelectedEndValue}
             />
             {editQuestion && (
                 <div className="flex flex-col items-end gap-2">

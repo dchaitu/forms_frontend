@@ -82,6 +82,54 @@ const FormQuestionAnswer = (props) => {
                         ))}
                     </select>
                 );
+            case QuestionType.DATE:
+                return (
+                    <input
+                        type="date"
+                        value={response || ''}
+                        onChange={(e) => onAnswerChange(e.target.value)}
+                        className="p-2 border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none"
+                    />
+                );
+            case QuestionType.TIME:
+                return (
+                    <input
+                        type="time"
+                        value={response || ''}
+                        onChange={(e) => onAnswerChange(e.target.value)}
+                        className="p-2 border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none"
+                    />
+                );
+            case QuestionType.LINEAR_SCALE:
+                const options = [];
+                const start = questionData.start_scale || 0;
+                const end = questionData.end_scale || 5;
+                for (let i = start; i <= end; i++) {
+                    options.push(i);
+                }
+                return (
+                    <div className="flex items-center justify-between w-full">
+                        <span className="text-sm text-gray-500">{questionData.start_label}</span>
+                        <div className="flex-grow flex justify-around px-4">
+                            {options.map(option => (
+                                <div key={option} className="flex flex-col items-center mx-4">
+                                    <label htmlFor={`scale-${questionData.id}-${option}`} className="text-sm font-medium text-gray-700">{option}</label>
+                                    <input
+                                        type="radio"
+                                        id={`scale-${questionData.id}-${option}`}
+                                        name={`question-${questionData.id}`}
+                                        value={option}
+                                        checked={response === option}
+                                        onChange={(e) => onAnswerChange(parseInt(e.target.value))}
+                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                        <span className="text-sm text-gray-500">{questionData.end_label}</span>
+                    </div>
+                );
+
             default:
                 return <p className="text-red-500">This question type is not supported for answering yet.</p>;
         }

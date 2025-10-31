@@ -4,8 +4,9 @@ import DropdownOptions from "./questionTypes/dropDownOptions";
 import TextOption from "./questionTypes/TextOption";
 import ParagraphOption from "./questionTypes/ParagraphOption";
 import { QuestionType } from "@/constants/questionType";
+import LinearScaleOptions from "./questionTypes/LinearScaleOptions";
 
-const QuestionOptions = ({ selectedQuestionType, editQuestion, options, setOptions, handleOptionChange, addOption, removeOption, handleOptionImageUpload }) => {
+const QuestionOptions = ({ selectedQuestionType, editQuestion, options, setOptions, handleOptionChange, addOption, removeOption, handleOptionImageUpload, selectedStartValue, setSelectedStartValue, selectedEndValue, setSelectedEndValue }) => {
     switch (selectedQuestionType) {
         case QuestionType.MULTIPLE_CHOICE:
             return <MultipleChoiceOptions edit={editQuestion} options={options} handleOptionChange={handleOptionChange} addOption={addOption} removeOption={removeOption} handleOptionImageUpload={handleOptionImageUpload} />;
@@ -17,6 +18,8 @@ const QuestionOptions = ({ selectedQuestionType, editQuestion, options, setOptio
             return <TextOption />;
         case QuestionType.PARAGRAPH:
             return <ParagraphOption />;
+        case QuestionType.LINEAR_SCALE:
+            return <LinearScaleOptions selectedStartValue={selectedStartValue} setSelectedStartValue={setSelectedStartValue} selectedEndValue={selectedEndValue} setSelectedEndValue={setSelectedEndValue} />;
         default:
             return null;
     }
