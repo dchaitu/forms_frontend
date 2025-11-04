@@ -28,7 +28,7 @@ const FormSection = (props) => {
     }, [title, description, initialSectionId]);
 
     const ref = useRef();
-    const sectionOptions = ["Duplicate Section", "Move Section","Delete Section"]
+    const sectionOptions = ["Duplicate Section", "Move Section","Delete Section","Merge with above"]
     const saveFormSection = async () => {
         try {
             const isUpdate = !!sectionId;
@@ -70,7 +70,7 @@ const FormSection = (props) => {
 
     return (
 
-        <div ref={ref} className="border-gray-700 min-w-[80vw]" >
+        <div ref={ref} className="border-gray-700 mx-auto" >
         <div className="flex flex-row p-5 bg-white rounded my-2 focus:outline-none border-t-8 border-t-[rgb(103,58,183)] border-l-4 focus:border-l-[#4285f4] border-r-0 border-b-0" tabIndex="0">
             <div className="flex flex-col">
                 <input placeholder="Untitled Form" value={sectionName} onChange={(e) => setSectionName(e.target.value)} className="rounded py-1 text-3xl"/>
@@ -95,7 +95,7 @@ const FormSection = (props) => {
                             <DropdownMenuGroup>
                                 {
                                     sectionOptions.map((option, index) => (
-                                        <DropdownMenuItem key={index}>
+                                        <DropdownMenuItem key={index} className="p-3">
                                             {option}
                                         </DropdownMenuItem>
                                     ))

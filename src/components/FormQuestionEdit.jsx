@@ -1,6 +1,12 @@
 import {FaRegTrashAlt} from "react-icons/fa";
 import IconHover from "@/constants/iconHover";
-import {MdContentCopy, MdOutlineImage} from "react-icons/md";
+import {IoMdImage, IoMdTrash} from "react-icons/io";
+import {
+    MdContentCopy,
+    MdFormatAlignCenter,
+    MdFormatAlignLeft, MdFormatAlignRight,
+    MdOutlineImage,
+} from "react-icons/md";
 import {useRef, useState} from "react";
 import {Switch} from "@/components/ui/switch";
 import {BsThreeDotsVertical} from "react-icons/bs";
@@ -153,25 +159,41 @@ const FormQuestionEdit = (props) => {
 
 
     return (
-        <div className="rounded min-w-[80vw] bg-white p-5 border border-gray-300 border-l-4 focus:border-l-[#4285f4] focus:outline-none" tabIndex="0">
+        <div className="rounded mx-auto bg-white p-5 border border-gray-300 border-l-4 focus:border-l-[#4285f4] focus:outline-none" tabIndex="0">
             <div className="flex flex-col items-between mb-2">
                 <div className="flex flex-row justify-between items-start mb-2">
                     <div className={"flex-1"} onMouseEnter={() => setImageHover(true)} onMouseLeave={() => setImageHover(false)}>
                         {image &&
                             <div className="relative">
                                 <img src={image} alt="question" className="mb-2 cursor-pointer" onClick={() => imageInputRef.current?.click()}/>
-                                {imageHover &&
+                                {image &&
                                     <div className="absolute top-2 left-2">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger>
                                                 <BsThreeDotsVertical className="text-gray-500" size={20}/>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent className="bg-white">
-                                                <DropdownMenuItem onClick={() => imageInputRef.current?.click()}>
-                                                    Change
+                                                <DropdownMenuItem className="m-2">
+
+                                                    <MdFormatAlignLeft className="text-gray-500" size={16} />
+                                                    <span>Left Align</span>
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => setImage(null)}>
-                                                    Remove
+                                                <DropdownMenuItem className="m-2">
+
+                                                    <MdFormatAlignCenter className="text-gray-500" size={16} />
+                                                    <span>Center Align</span>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem className="m-2">
+                                                    <MdFormatAlignRight className="text-gray-500" size={16} />
+                                                    <span>Right Align</span>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem className="m-2" onClick={() => imageInputRef.current?.click()}>
+                                                    <IoMdImage className="text-gray-500" size={16} />
+                                                    <span>Change</span>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem className="m-2" onClick={() => setImage(null)}>
+                                                    <IoMdTrash className="text-gray-500" size={16} />
+                                                    <span>Remove</span>
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>

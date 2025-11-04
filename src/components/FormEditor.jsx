@@ -176,8 +176,8 @@ const FormEditor = ({initialFormData, formId}) => {
     }, [selectedComponent]);
 
     return (
-        <div className="flex flex-row justify-center">
-            <div className="relative">
+        <div className="flex flex-row justify-center w-full">
+            <div className="relative w-full max-w-[900px]">
                 <div className="flex flex-col" ref={formColumnRef}>
                     <div
                         ref={el => componentRefs.current.set('header', el)}
