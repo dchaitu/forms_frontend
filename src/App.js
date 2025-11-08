@@ -12,6 +12,7 @@ import RegistrationPage from "./pages/RegistrationPage";
 import LoginPage from "./pages/LoginPage";
 
 import {UserProvider} from "./context/UserContext";
+import ProtectedRoute from "@/constants/protectedRoute";
 
 function App() {
     return (
@@ -23,12 +24,15 @@ function App() {
                         <Route exact path="/home" element={<UserHomePage/>}/>
                         <Route exact path="/register" element={<RegistrationPage/>}/>
                         <Route exact path="/login" element={<LoginPage/>}/>
-                        <Route exact path="/:formId" element={<CreateFormPage/>}/>
+                        <Route element={<ProtectedRoute />}>
+                            <Route exact path="/:formId" element={<CreateFormPage/>}/>
+                            <Route path="/settings" element={<SettingsPage />} />
+                            <Route path="/responses/:formId" element={<ResponsesPage />} />
+                            <Route path="/response/:unique_id" element={<AnswerPage />} />
+                        </Route>
                         <Route path="/invalid" element={<PageNotFound />} />
                         <Route path="*" element={<Navigate to="/invalid" />} />
-                        <Route path="/settings" element={<SettingsPage />} />
-                        <Route path="/responses/:formId" element={<ResponsesPage />} />
-                        <Route path="/response/:unique_id" element={<AnswerPage />} />
+
                     </Routes>
                 </TooltipProvider>
             </UserProvider>

@@ -63,7 +63,7 @@ const CreateFormPage = () => {
         return (
             <div id="mainPage">
                 <Header formId={formId} responseLink={formData?.response_link}/>
-                <div id="form" className="bg-violet-100 min-h-screen w-[70%] mx-auto px-10 py-4">
+                <div id="form" className="bg-violet-100 min-h-screen mx-auto px-10 py-4">
                     <FormEditor initialFormData={formData} formId={formId} />
                 </div>
             </div>
