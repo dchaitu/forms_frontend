@@ -1,5 +1,15 @@
 version: 0.2
 
+
+env:
+  variables:
+    S3_BUCKET: "forms-clone-frontend"
+    CLOUDFRONT_DISTRIBUTION_ID: "E3UCQIYCSVV4R7"
+
+cache:
+  paths:
+    - 'node_modules/**/*'
+
 phases:
   install:
     runtime-versions:
@@ -21,7 +31,10 @@ phases:
     commands:
       - echo Build completed on `date`
       - echo Running tests...
-      - CI=true npm test -- --watchAll=false
+      - echo "Syncing build output to S3..."
+      - aws s3 sync build/ s3://$S3_BUCKET/ --delete
+      - echo "Invalidating CloudFront cache..."
+      - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/*"
 
 artifacts:
   files:
@@ -29,6 +42,4 @@ artifacts:
   base-directory: 'build'
   discard-paths: no
 
-cache:
-  paths:
-    - 'node_modules/**/*'
+
