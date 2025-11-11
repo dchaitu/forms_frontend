@@ -1,0 +1,34 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 18
+    commands:
+      - echo Installing Node.js version $(node --version)
+      - npm ci
+
+  pre_build:
+    commands:
+      - echo Installing dependencies...
+
+  build:
+    commands:
+      - echo Build started on `date`
+      - npm run build
+
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Running tests...
+      - CI=true npm test -- --watchAll=false
+
+artifacts:
+  files:
+    - '**/*'
+  base-directory: 'build'
+  discard-paths: no
+
+cache:
+  paths:
+    - 'node_modules/**/*'
