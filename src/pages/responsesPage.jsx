@@ -97,24 +97,30 @@ const ResponsesPage = () => {
                             </div>
                             <div className="mt-2 px-7 py-3">
                                 <div className="overflow-x-auto">
-                                    <table className="table-auto w-full">
-                                        <thead className="bg-gray-50">
-                                        <tr>
-                                            {csvData && Object.keys(csvData[0]).map((header, index) => (
-                                                <th key={index} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{header}</th>
-                                            ))}
-                                        </tr>
-                                        </thead>
-                                        <tbody className="bg-white divide-y divide-gray-200">
-                                        {csvData && csvData.map((row, rowIndex) => (
-                                            <tr key={rowIndex}>
-                                                {Object.values(row).map((value, colIndex) => (
-                                                    <td key={colIndex} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{value}</td>
+                                    {csvData && csvData.length > 0 ? (
+                                        <table className="table-auto w-full">
+                                            <thead className="bg-gray-50">
+                                            <tr>
+                                                {Object.keys(csvData[0]).map((header, index) => (
+                                                    <th key={index}
+                                                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{header}</th>
                                                 ))}
                                             </tr>
-                                        ))}
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody className="bg-white divide-y divide-gray-200">
+                                            {csvData.map((row, rowIndex) => (
+                                                <tr key={rowIndex}>
+                                                    {Object.values(row).map((value, colIndex) => (
+                                                        <td key={colIndex}
+                                                            className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{value}</td>
+                                                    ))}
+                                                </tr>
+                                            ))}
+                                            </tbody>
+                                        </table>
+                                    ) : (
+                                        <p>No responses to show.</p>
+                                    )}
                                 </div>
                             </div>
                             <div className="items-center px-4 py-3">
