@@ -2,7 +2,6 @@ import IconHover from "@/constants/iconHover";
 import {BiCollapseVertical} from "react-icons/bi";
 import {BsThreeDotsVertical} from "react-icons/bs";
 import {useEffect, useRef, useState} from "react";
-// import useOnClickOutside from "@/lib/useOnClickOutside";
 import {API_BASE_URL} from "@/constants/constants";
 import {
     DropdownMenu,
@@ -11,16 +10,27 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
+import MoveSection from "@/components/moveSection";
+import ConfirmDelete from "@/components/deleteSection";
+import SectionNavigation from "@/components/sectionNavigation";
 
 
 const FormSection = (props) => {
-    const {isSelected, formId, title, description, sectionId: initialSectionId} = props;
+    const {isSelected, formId, title, description, sectionId: initialSectionId, showMove, setShowMove,formData, handleSaveReorder, onNavigate} = props;
     const [sectionName, setSectionName] = useState(title || "Untitled Section");
     const [sectionDescription, setSectionDescription] = useState(description);
-    // const [formId, setFormId] = useState(initialFormId);
 
     const [sectionId, setSectionId] = useState(initialSectionId);
+    const [showDelete, setShowDelete] = useState(false);
     const placeholderSectionDescription = "Section Description";
+
+    const handleNavigation = (target) => {
+        if(onNavigate) {
+            onNavigate(sectionId, target)
+        }
+    }
+
+
     useEffect(() => {
         if (title) setSectionName(title);
         if (description) setSectionDescription(description);
@@ -28,7 +38,7 @@ const FormSection = (props) => {
     }, [title, description, initialSectionId]);
 
     const ref = useRef();
-    const sectionOptions = ["Duplicate Section", "Move Section","Delete Section"]
+    const sectionOptions = ["Duplicate Section", "Move Section","Delete Section","Merge with above"]
     const saveFormSection = async () => {
         try {
             const isUpdate = !!sectionId;
@@ -66,11 +76,30 @@ const FormSection = (props) => {
 
     }
 
+    const moveSection = (sectionOption)=> {
+        if(sectionOption ==="Move Section")
+        {
+            setShowMove(true);
+            console.log("Moving Section")
+        }
+    }
+    const deleteSection = (sectionOption) => {
+        if(sectionOption === "Delete Section") {
+            setShowDelete(true);
+        }
+    };
+
+    const confirmDeleteSection = async () => {
+        if (props.onDelete) {
+            await props.onDelete(sectionId);
+        }
+        setShowDelete(false);
+    };
 
 
     return (
 
-        <div ref={ref} className="border-gray-700 min-w-[80vw]" >
+        <div ref={ref} className="border-gray-700 mx-auto" >
         <div className="flex flex-row p-5 bg-white rounded my-2 focus:outline-none border-t-8 border-t-[rgb(103,58,183)] border-l-4 focus:border-l-[#4285f4] border-r-0 border-b-0" tabIndex="0">
             <div className="flex flex-col">
                 <input placeholder="Untitled Form" value={sectionName} onChange={(e) => setSectionName(e.target.value)} className="rounded py-1 text-3xl"/>
@@ -95,7 +124,10 @@ const FormSection = (props) => {
                             <DropdownMenuGroup>
                                 {
                                     sectionOptions.map((option, index) => (
-                                        <DropdownMenuItem key={index}>
+                                        <DropdownMenuItem key={index} className="p-3" onClick={() => {
+                                            moveSection(option)
+                                            deleteSection(option)
+                                        }}>
                                             {option}
                                         </DropdownMenuItem>
                                     ))
@@ -106,7 +138,33 @@ const FormSection = (props) => {
                     </DropdownMenu>
                     </div>
             )}
+            {
+                showMove && (
+                    <MoveSection
+                        sections={formData.sections}
+                        onClose={() => setShowMove(false)}
+                        onSave={handleSaveReorder}
+                    />
+                )
+            }
+            {showDelete && (
+                <ConfirmDelete
+                    title="Delete questions and section?"
+                    message="Deleting a section also deletes the questions and responses it contains.
+                    To preserve the questions, choose Merge section up from the section options."
+                    onConfirm={confirmDeleteSection}
+                    onCancel={() => setShowDelete(false)}
+                />
+            )}
         </div>
+            {isSelected && formData?.sections?.length > 1 && (
+                    <SectionNavigation
+                        sections={formData.sections}
+                        currentSectionId={sectionId}
+                        onNavigate={handleNavigation}
+                    />
+                )
+            }
         </div>
 
 

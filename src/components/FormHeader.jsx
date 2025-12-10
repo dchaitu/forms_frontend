@@ -44,7 +44,7 @@ const FormHeader = ({ onSave, formId, initialTitle = '', initialDescription = ''
     };
 
     return (
-        <div className="border-gray-700 min-w-[80vw]" >
+        <div className="border-gray-700 mx-auto" >
             <div className="flex flex-row p-5 bg-white rounded my-2 focus:outline-none border-t-8 border-t-[rgb(103,58,183)] border-l-4 focus:border-l-[#4285f4] border-r-0 border-b-0" tabIndex="0">
                 <div className="flex flex-col w-full">
                     <input

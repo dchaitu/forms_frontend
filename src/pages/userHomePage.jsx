@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import {useNavigate} from "react-router-dom";
-import { API_BASE_URL } from "@/constants/constants";
+import {API_BASE_URL, getDateString} from "@/constants/constants";
 import { Spinner } from "@/components/ui/spinner";
 import {useUser} from "@/context/UserContext";
 
@@ -24,6 +24,7 @@ const UserHomePage = () => {
                 ]);
 
                 const formsData = await formsResp.json();
+                console.log("formsData ", formsData);
                 const countsData = await countsResp.json();
 
                 // Convert count list into a dictionary {formId: count}
@@ -81,19 +82,22 @@ const UserHomePage = () => {
             {forms.length === 0 ? (
                 <p className="text-gray-500">No forms created yet. Click “+ New Form” to start.</p>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {forms.map(form => (
                         <div
                             key={form.id}
                             onClick={() => navigate(`/${form.id}`)}
-                            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg cursor-pointer"
+                            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg cursor-pointer text-start"
                         >
                             <h2 className="text-lg font-semibold mb-2">{form.title}</h2>
-                            <p className="text-sm text-gray-500">{form.description}</p>
+                            {/*<p className="text-sm text-gray-500">{form.description}</p>*/}
                             <p className="text-sm text-gray-600 mt-4">
                                 {formCounts[form.id]
                                     ? `${formCounts[form.id]} ${formCounts[form.id] === 1 ? "response" : "responses"}`
                                     : "No responses yet"}
+                            </p>
+                            <p className="text-sm text-gray-600 mt-4">
+                                Created on {getDateString(form.created_at)}
                             </p>
                         </div>
                     ))}

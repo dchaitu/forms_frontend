@@ -136,7 +136,7 @@ const FormQuestionAnswer = (props) => {
     };
 
     return (
-        <div className="mb-6 p-6 border border-gray-200 rounded-lg bg-white flex flex-col items-start">
+        <div className="mb-6 p-6 border border-gray-200 rounded-lg bg-white flex flex-col items-start mx-auto w-[80%]">
             <h3 className="text-lg font-medium text-gray-900">{questionData.title}</h3>
             {questionData.description && <p className="text-sm text-gray-500 mt-1">{questionData.description}</p>}
             <div className="mt-4">
