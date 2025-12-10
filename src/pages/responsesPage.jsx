@@ -18,7 +18,7 @@ const ResponsesPage = () => {
     useEffect(() => {
         const getResponseCount = async () => {
             try {
-                const resp = await fetch(`${API_BASE_URL}/response/${formId}/count/`);
+                const resp = await fetch(`${API_BASE_URL}/response/${formId}/count`);
                 const data = await resp.json();
                 setResponseCount(data.count);
             } catch (error) {
